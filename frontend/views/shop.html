@@ -8,7 +8,16 @@
 							<div class="intro-excerpt">
 								<h1>Shop Watches</h1>
 							</div>
-						</div>						
+						</div>	
+						<!-- Search bar -->
+						<div class="card mb-2 search_bar_container">
+							<div class="card-body d-flex justify-content-between py-2">
+								<div class="input-group input-group-lg search_icon_container">
+									<span class="input-group-text border-0 px-1 search_icon" id="basic-addon2"><i class="fas fa-search fa-lg"></i></span>
+									<input type="text" class="form-control form-control-lg rounded search_bar_input" placeholder="Search" aria-label="Search" aria-describedby="basic-addon2">
+								</div>
+							</div>
+						</div>					
 					</div>					
 				</div>
 			</div>
@@ -223,6 +232,51 @@
 										</div>
 								</div>
 
+								<!-- Case Size Filter Section -->
+								<div class="accordion mb-3" id="caseSizeFilter">
+									<div class="accordion-item">
+											<h2 class="accordion-header" id="caseSizeHeading">
+													<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#caseSizeCollapse" aria-expanded="false" aria-controls="caseSizeCollapse">
+															Case Sizes
+													</button>
+											</h2>
+											<div id="caseSizeCollapse" class="accordion-collapse collapse" aria-labelledby="caseSizeHeading" data-bs-parent="#caseSizeFilter">
+													<div class="accordion-body">
+															<div class="form-check accordion-check">
+																	<input class="form-check-input" type="checkbox" value="" id="caseSize1">
+																	<label class="form-check-label" for="caseSize1">
+																			36mm and under
+																	</label>
+															</div>
+															<div class="form-check accordion-check">
+																	<input class="form-check-input" type="checkbox" value="" id="caseSize2">
+																	<label class="form-check-label" for="caseSize2">
+																			37mm - 40mm
+																	</label>
+															</div>
+															<div class="form-check accordion-check">
+																	<input class="form-check-input" type="checkbox" value="" id="caseSize3">
+																	<label class="form-check-label" for="caseSize3">
+																			41mm - 42mm
+																	</label>
+															</div>
+															<div class="form-check accordion-check">
+																	<input class="form-check-input" type="checkbox" value="" id="caseSize4">
+																	<label class="form-check-label" for="caseSize4">
+																			43mm - 44mm
+																	</label>
+															</div>
+															<div class="form-check accordion-check">
+																	<input class="form-check-input" type="checkbox" value="" id="caseSize5">
+																	<label class="form-check-label" for="caseSize5">
+																			45mm and over
+																	</label>
+															</div>
+													</div>
+											</div>
+									</div>
+								</div>
+
 								<!-- Price Filter Section -->
 								<div class="accordion mb-3" id="priceFilter">
 									<div class="accordion-item">
@@ -274,7 +328,114 @@
 									</div>
 								</div>
 
-								<!-- Add more filter sections as needed -->
+								<!-- Watch Style Filter Section -->
+								<div class="accordion mb-3" id="watchStyleFilter">
+									<div class="accordion-item">
+											<h2 class="accordion-header" id="watchStyleHeading">
+													<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#watchStyleCollapse" aria-expanded="false" aria-controls="watchStyleCollapse">
+															Watch Styles
+													</button>
+											</h2>
+											<div id="watchStyleCollapse" class="accordion-collapse collapse" aria-labelledby="watchStyleHeading" data-bs-parent="#watchStyleFilter">
+													<div class="accordion-body">
+															<div class="form-check accordion-check">
+																	<input class="form-check-input" type="checkbox" value="" id="watchStyle1">
+																	<label class="form-check-label" for="watchStyle1">
+																			Dress Watches
+																	</label>
+															</div>
+															<div class="form-check accordion-check">
+																	<input class="form-check-input" type="checkbox" value="" id="watchStyle2">
+																	<label class="form-check-label" for="watchStyle2">
+																			Sports Watches
+																	</label>
+															</div>
+															<div class="form-check accordion-check">
+																	<input class="form-check-input" type="checkbox" value="" id="watchStyle3">
+																	<label class="form-check-label" for="watchStyle3">
+																			Dive Watches
+																	</label>
+															</div>
+															<div class="form-check accordion-check">
+																	<input class="form-check-input" type="checkbox" value="" id="watchStyle4">
+																	<label class="form-check-label" for="watchStyle4">
+																			Pilot Watches
+																	</label>
+															</div>
+															<div class="form-check accordion-check">
+																	<input class="form-check-input" type="checkbox" value="" id="watchStyle5">
+																	<label class="form-check-label" for="watchStyle5">
+																			Casual Watches
+																	</label>
+															</div>
+															<div class="form-check accordion-check">
+																	<input class="form-check-input" type="checkbox" value="" id="watchStyle6">
+																	<label class="form-check-label" for="watchStyle6">
+																			Luxury Watches
+																	</label>
+															</div>
+															<div class="form-check accordion-check">
+																	<input class="form-check-input" type="checkbox" value="" id="watchStyle7">
+																	<label class="form-check-label" for="watchStyle7">
+																			Smartwatches
+																	</label>
+															</div>
+															<div class="form-check accordion-check">
+																	<input class="form-check-input" type="checkbox" value="" id="watchStyle8">
+																	<label class="form-check-label" for="watchStyle8">
+																			Chronograph Watches
+																	</label>
+															</div>
+															<div class="form-check accordion-check">
+																	<input class="form-check-input" type="checkbox" value="" id="watchStyle9">
+																	<label class="form-check-label" for="watchStyle9">
+																			Field Watches
+																	</label>
+															</div>
+															<div class="form-check accordion-check">
+																	<input class="form-check-input" type="checkbox" value="" id="watchStyle10">
+																	<label class="form-check-label" for="watchStyle10">
+																			Minimalist Watches
+																	</label>
+															</div>
+													</div>
+											</div>
+									</div>
+								</div>
+
+								<!-- Gender Filter Section -->
+								<div class="accordion mb-3" id="genderFilter">
+									<div class="accordion-item">
+											<h2 class="accordion-header" id="genderHeading">
+													<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#genderCollapse" aria-expanded="false" aria-controls="genderCollapse">
+															Genders
+													</button>
+											</h2>
+											<div id="genderCollapse" class="accordion-collapse collapse" aria-labelledby="genderHeading" data-bs-parent="#genderFilter">
+													<div class="accordion-body">
+															<div class="form-check accordion-check">
+																	<input class="form-check-input" type="checkbox" value="" id="gender1">
+																	<label class="form-check-label" for="gender1">
+																			Men's Watches
+																	</label>
+															</div>
+															<div class="form-check accordion-check">
+																	<input class="form-check-input" type="checkbox" value="" id="gender2">
+																	<label class="form-check-label" for="gender2">
+																			Women's Watches
+																	</label>
+															</div>
+															<div class="form-check accordion-check">
+																	<input class="form-check-input" type="checkbox" value="" id="gender3">
+																	<label class="form-check-label" for="gender3">
+																			Unisex Watches
+																	</label>
+															</div>
+													</div>
+											</div>
+									</div>
+								</div>
+
 						</div>
 
 						<!-- Product Section -->
@@ -288,10 +449,10 @@
 								 <!-- First row -->
 								<div class="row">
 									<div class="col-12 col-md-4 col-lg-3 mb-5">
-										<a class="product-item" href="#">
-											<img src="images/product_watches/product_watch_1_tag_heuer.png" class="img-fluid product-thumbnail">
-											<h3 class="product-title">Tag Heuer Carrera Cal.16</h3>
-											<strong class="product-price">$5,100</strong>
+										<a class="product-item" href="#product">
+											<img src="images/product_watches/product_watch_9_tissot_prx.png" class="img-fluid product-thumbnail">
+											<h3 class="product-title">Tissot PRX Powermatic 50</h3>
+											<strong class="product-price">$600</strong>
 				
 											<span class="icon-cross">
 												<img src="images/cross.svg" class="img-fluid">
@@ -302,7 +463,7 @@
 										
 									<!-- Start Column 2 -->
 									<div class="col-12 col-md-4 col-lg-3 mb-5">
-										<a class="product-item" href="#">
+										<a class="product-item" href="#product">
 											<img src="images/product_watches/product_watch_2_tissot.png" class="img-fluid product-thumbnail">
 											<h3 class="product-title">Tissot Rose Dream 18K Gold</h3>
 											<strong class="product-price">$3,560</strong>
@@ -316,7 +477,7 @@
 				
 									<!-- Start Column 3 -->
 									<div class="col-12 col-md-4 col-lg-3 mb-5">
-										<a class="product-item" href="#">
+										<a class="product-item" href="#product">
 											<img src="images/product_watches/product_watch_3_iwc.png" class="img-fluid product-thumbnail">
 											<h3 class="product-title">IWC Portugieser Chronograph</h3>
 											<strong class="product-price">$7,900</strong>
@@ -330,7 +491,7 @@
 				
 									<!-- Start Column 4 -->
 									<div class="col-12 col-md-4 col-lg-3 mb-5">
-										<a class="product-item" href="#">
+										<a class="product-item" href="#product">
 											<img src="images/product_watches/product_watch_4_hamilton.png" class="img-fluid product-thumbnail">
 											<h3 class="product-title">Hamilton Broadway Day Date Auto</h3>
 											<strong class="product-price">$1,070</strong>
@@ -349,7 +510,7 @@
 									<!-- Start Column 1 -->
 									<div class="row">
 										<div class="col-12 col-md-4 col-lg-3 mb-5">
-											<a class="product-item" href="#">
+											<a class="product-item" href="#product">
 												<img src="images/product_watches/product_watch_5_rolex.png" class="img-fluid product-thumbnail">
 												<h3 class="product-title">Rolex</h3>
 												<strong class="product-price">$50.00</strong>
@@ -363,7 +524,7 @@
 											
 										<!-- Start Column 2 -->
 										<div class="col-12 col-md-4 col-lg-3 mb-5">
-											<a class="product-item" href="#">
+											<a class="product-item" href="#product">
 												<img src="images/product_watches/product_watch_6_omega.png" class="img-fluid product-thumbnail">
 												<h3 class="product-title">Omega</h3>
 												<strong class="product-price">$50.00</strong>
@@ -377,7 +538,7 @@
 					
 										<!-- Start Column 3 -->
 										<div class="col-12 col-md-4 col-lg-3 mb-5">
-											<a class="product-item" href="#">
+											<a class="product-item" href="#product">
 												<img src="images/product_watches/product_watch_7_citizen.png" class="img-fluid product-thumbnail">
 												<h3 class="product-title">Citizen</h3>
 												<strong class="product-price">$78.00</strong>
@@ -391,7 +552,7 @@
 					
 										<!-- Start Column 4 -->
 										<div class="col-12 col-md-4 col-lg-3 mb-5">
-											<a class="product-item" href="#">
+											<a class="product-item" href="#product">
 												<img src="images/product_watches/product_watch_8_mido.png" class="img-fluid product-thumbnail">
 												<h3 class="product-title">Mido</h3>
 												<strong class="product-price">$43.00</strong>
@@ -410,7 +571,7 @@
 									<!-- Start Column 1 -->
 								 <div class="row">
 									<div class="col-12 col-md-4 col-lg-3 mb-5">
-										<a class="product-item" href="#">
+										<a class="product-item" href="#product">
 											<img src="images/product_watches/product_watch_3_iwc.png" class="img-fluid product-thumbnail">
 											<h3 class="product-title">IWC Portugieser Chronograph</h3>
 											<strong class="product-price">$50.00</strong>
@@ -424,7 +585,7 @@
 										
 									<!-- Start Column 2 -->
 									<div class="col-12 col-md-4 col-lg-3 mb-5">
-										<a class="product-item" href="#">
+										<a class="product-item" href="#product">
 											<img src="images/product_watches/product_watch_4_hamilton.png" class="img-fluid product-thumbnail">
 											<h3 class="product-title">Hamilton Broadway Day Date Auto</h3>
 											<strong class="product-price">$50.00</strong>
@@ -438,7 +599,7 @@
 				
 									<!-- Start Column 3 -->
 									<div class="col-12 col-md-4 col-lg-3 mb-5">
-										<a class="product-item" href="#">
+										<a class="product-item" href="#product">
 											<img src="images/product_watches/product_watch_1_tag_heuer.png" class="img-fluid product-thumbnail">
 											<h3 class="product-title">Tag Heuer Carrera Cal.16</h3>
 											<strong class="product-price">$78.00</strong>
@@ -452,7 +613,7 @@
 				
 									<!-- Start Column 4 -->
 									<div class="col-12 col-md-4 col-lg-3 mb-5">
-										<a class="product-item" href="#">
+										<a class="product-item" href="#product">
 											<img src="images/product_watches/product_watch_2_tissot.png" class="img-fluid product-thumbnail">
 											<h3 class="product-title">Tissot Rose Dream 18K Gold</h3>
 											<strong class="product-price">$43.00</strong>
