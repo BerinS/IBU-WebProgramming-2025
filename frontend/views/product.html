@@ -1,0 +1,67 @@
+<div class="product_page">
+  
+  <div class="container mt-5">
+    <div class="row">
+        <!-- Product Images -->
+        <div class="col-md-6 mb-4">
+            <img src="images/product_watches/product_gallery/product gallery image 1.jpg" alt="Product" class="img-fluid rounded mb-3 product-image" id="mainImage">
+            <div class="d-flex justify-content-between">
+                <img src="images/product_watches/product_gallery/product gallery image 1.jpg" alt="Thumbnail 1" class="thumbnail rounded active" onclick="changeImage(event, this.src)">
+                <img src="images/product_watches/product_gallery/product gallery image 2.jpg" alt="Thumbnail 2" class="thumbnail rounded" onclick="changeImage(event, this.src)">
+                <img src="images/product_watches/product_gallery/product gallery image 3.jpg" alt="Thumbnail 3" class="thumbnail rounded" onclick="changeImage(event, this.src)">
+                <img src="images/product_watches/product_gallery/product gallery image 4.jpg" alt="Thumbnail 4" class="thumbnail rounded" onclick="changeImage(event, this.src)">
+            </div>
+        </div>
+
+        <!-- Product Details -->
+        <div class="col-md-6 product_details">
+            <h2 class="mb-3">Tissot PRX Powermatic 80</h2>
+            <p class="text-muted mb-4">SKU: WH1000XM4</p>
+            <div class="mb-3">
+                <span class="h4 me-2">$600</span>
+                <span class="text-muted"><s>$620</s></span>
+            </div>
+            <div class="mb-3">
+                <i class="bi bi-star-fill text-warning"></i>
+                <i class="bi bi-star-fill text-warning"></i>
+                <i class="bi bi-star-fill text-warning"></i>
+                <i class="bi bi-star-fill text-warning"></i>
+                <i class="bi bi-star-half text-warning"></i>
+                <span class="ms-2">4.5 (120 reviews)</span>
+            </div>
+            <p class="mb-4">If you're looking for a slim, smooth watch with an authentic '70s feel, look no further than the PRX Powermatic 80. Created for those with an eye for design and packed with twenty-first century features in a
+               Tissot case shape from 1978, the PRX is a must-have on every watch fan's wish list. The self-winding Powermatic 80 movement 
+              delivers reliability and precision thanks to the innovative Nivachron hairspring. With 80 hours of power reserve, it's a modern movement designed to keep pace with busy lifestyles.</p>      
+            <div class="mb-4">
+                <label for="quantity" class="form-label">Quantity:</label>
+                <input type="number" class="form-control" id="quantity" value="1" min="1" style="width: 80px;">
+            </div>
+            <button class="btn btn-primary btn-lg mb-3 me-2 cart_button">
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                </button>
+            <button class="btn btn-outline-secondary btn-lg mb-3">
+                    <i class="bi bi-heart"></i> Add to Wishlist
+                </button>
+            <div class="mt-4">
+                <h5>Key Features:</h5>
+                <ul>
+                    <li>Diameter:40 mm</li>
+                    <li>Up to 80 hours power reserve</li>
+                    <li>316L stainless steel case</li>
+                    <li>Scratch-resistant sapphire crystal with antireflective coating</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  function changeImage(event, src) {
+          document.getElementById('mainImage').src = src;
+          document.querySelectorAll('.thumbnail').forEach(thumb => thumb.classList.remove('active'));
+          event.target.classList.add('active');
+      }
+</script>

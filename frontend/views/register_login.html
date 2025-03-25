@@ -1,0 +1,59 @@
+<div class="auth-wrapper hero">
+  <div class="auth-box" id="auth-login">
+    <h1 class="auth-title">Login</h1>
+    <form class="auth-form">
+      <label for="auth-username" class="auth-label">Username</label>
+      <input type="text" id="auth-username" name="username" class="auth-input" required>
+      <label for="auth-password" class="auth-label">Password</label>
+      <input type="password" id="auth-password" name="password" class="auth-input" required>
+      <button type="submit" class="auth-button">Login</button>
+    </form>
+    <p class="auth-text">Don't have an account? <a href="#" id="auth-signup-link" class="auth-link">Sign up</a></p>
+  </div>
+
+  <div class="auth-box" id="auth-signup" style="display: none;">
+    <h1 class="auth-title">Sign Up</h1>
+    <form class="auth-form">
+      <label for="auth-new-username" class="auth-label">Username</label>
+      <input type="text" id="auth-new-username" name="new-username" class="auth-input" required>
+      <label for="auth-new-email" class="auth-label">Email</label>
+      <input type="email" id="auth-new-email" name="new-email" class="auth-input" required>
+      <label for="auth-new-password" class="auth-label">Password</label>
+      <input type="password" id="auth-new-password" name="new-password" class="auth-input" required>
+      <button type="submit" class="auth-button">Sign Up</button>
+    </form>
+    <p class="auth-text">Already have an account? <a href="#" id="auth-login-link" class="auth-link">Login</a></p>
+  </div>
+</div>
+
+
+<script>
+  
+// Login / Register page
+const authLoginForm = document.getElementById('auth-login');
+const authSignupForm = document.getElementById('auth-signup');
+const authLoginLink = document.getElementById('auth-login-link');
+const authSignupLink = document.getElementById('auth-signup-link');
+
+authLoginLink.addEventListener('click', (event) => {
+  event.preventDefault();
+  authSignupForm.style.display = 'none';
+  authLoginForm.style.display = 'block';
+
+  setTimeout(() => {
+    authSignupForm.style.opacity = 0;
+    authLoginForm.style.opacity = 1;
+  }, 10);
+});
+
+authSignupLink.addEventListener('click', (event) => {
+  event.preventDefault();
+  authLoginForm.style.display = 'none';
+  authSignupForm.style.display = 'block';
+
+  setTimeout(() => {
+    authLoginForm.style.opacity = 0;
+    authSignupForm.style.opacity = 1;
+  }, 10);
+});
+</script>

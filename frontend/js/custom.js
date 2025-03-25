@@ -69,15 +69,22 @@
 	};
 	sitePlusMinus();
 
-
-
 })()
 
-var app = $.spapp({
-    defaultView: "#page1",
-    templateDir: "./"
 
+//Force scroll to top
+window.addEventListener("hashchange", function() {
+    window.scrollTo(0, 0);
 });
 
 
+//SPAPP code
+var app = $.spapp({
+    defaultView: "#page1",
+    templateDir: "./views/"
+
+});
 app.run();
+
+
+
