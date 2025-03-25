@@ -921,7 +921,28 @@ a.more {
     text-align: center;
     margin: 8px;
   }
+
+  .sort_btn{
+    width: 50%;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    margin-bottom: 15px;
+    margin-top: 5px;
+    color: var(--text_heading);
+  }
+
+  .dropdown-menu{
+    width: 100%;
     
+  }
+  .sort_icon{
+    text-align: end;
+    margin-right: 15px;
+  }
+
+  .close_sidebar_btn{
+    z-index: 3;
+  }
   
   .testimonial-slider-wrap .tns-inner {
     padding-top: 30px; }

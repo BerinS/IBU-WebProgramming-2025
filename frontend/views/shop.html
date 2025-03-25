@@ -1,7 +1,7 @@
 <div>
 
 		<!-- Start Hero Section -->
-			<div class="hero">
+			<div class="hero" style="padding-bottom: 55px; padding-top: 50px;">
 				<div class="container">
 					<div class="row justify-content-between">
 						<div class="col-lg-5">
@@ -17,7 +17,8 @@
 									<input type="text" class="form-control form-control-lg rounded search_bar_input" placeholder="Search" aria-label="Search" aria-describedby="basic-addon2">
 								</div>
 							</div>
-						</div>					
+						</div>	
+						
 					</div>					
 				</div>
 			</div>
@@ -32,7 +33,34 @@
 						<!-- Sidebar Filter Section -->
 						<div class="col-lg-3 col-md-4 col-12 sidebar-filter" id="sidebarFilter">
 								<!-- Close Button for Small Screens -->
-								<button class="btn btn-close d-lg-none" id="closeSidebar" aria-label="Close"></button>
+								<button class="btn btn-close d-lg-none close_sidebar_btn" id="closeSidebar" aria-label="Close"></button>
+
+								<div class="dropdown">
+									<button class="btn btn-secondary dropdown-toggle sort_btn" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+									  Sort
+									</button>
+									<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+									  <li class="d-flex justify-content-between">
+											<a class="dropdown-item" href="#">Price: high to low</a>
+											<i class="bi bi-sort-down sort_icon"></i>
+										</li>
+									  <li class="d-flex justify-content-between">
+										<a class="dropdown-item" href="#">Price: low to high</a>
+										<i class="bi bi-sort-up sort_icon"></i>
+									</li>
+									<li class="d-flex justify-content-between">
+										<a class="dropdown-item" href="#">A to Z</a>
+										<i class="bi bi-sort-alpha-down sort_icon"></i>
+									</li>
+									<li class="d-flex justify-content-between">
+										<a class="dropdown-item" href="#">Z to A</a>
+										<i class="bi bi-sort-alpha-up-alt sort_icon"></i>
+									</li>
+										<li class="d-flex justify-content-between">
+											<a class="dropdown-item" href="#">Best selling</a>
+										</li>
+									</ul>
+								  </div>
 
 								<!-- Brand Filter Section -->
 								<div class="accordion mb-3" id="brandFilter">
