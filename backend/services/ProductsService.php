@@ -16,5 +16,23 @@ class ProductsService extends BaseService {
     public function searchByName($name) {
         return $this->dao->searchByName($name);
     }
+
+    public function getByBrand($brand) {
+        return $this->dao->getByBrand($brand);
+    }
+    
+    public function getByPriceRange($min_price, $max_price) {
+        return $this->dao->getByPriceRange($min_price, $max_price);
+    }
+    
+    public function getByStockQuantity($min_stock) {
+        return $this->dao->getByStockQuantity($min_stock);
+    }
+
+    public function getByGender($gender) {
+        return $this->dao->getByGender($gender);
+    }
+    
+    
 }
 ?>

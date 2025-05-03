@@ -5,7 +5,7 @@ ini_set('display_errors', 1);
 
 
 require_once 'vendor/autoload.php';
-require_once __DIR__ . '/backend/services/ProductsService.php'; // <-- ADD THIS
+require_once __DIR__ . '/backend/services/ProductsService.php'; 
 require_once __DIR__ . '/backend/routes/ProductsRoutes.php';
 
 Flight::register('productsService', 'ProductsService');
