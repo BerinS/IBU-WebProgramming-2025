@@ -1,6 +1,4 @@
 RewriteEngine On
-RewriteBase /IBU-WebProgramming-2025/backend/
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php [QSA,L]
-Options -Indexes
