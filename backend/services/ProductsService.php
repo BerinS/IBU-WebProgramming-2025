@@ -32,6 +32,34 @@ class ProductsService extends BaseService {
     public function getByGender($gender) {
         return $this->dao->getByGender($gender);
     }
+
+    //Function to add products
+    public function add($product) {
+        // Required fields
+        $required = ['name', 'brand', 'price', 'stock_quantity', 'category_id', 'gender'];
+    
+        foreach ($required as $field) {
+            if (!isset($product[$field]) || empty($product[$field])) {
+                throw new Exception("Field '$field' is required.");
+            }
+        }
+    
+        if (!is_numeric($product['price']) || $product['price'] < 0) {
+            throw new Exception("Price must be a positive number.");
+        }
+    
+        if (!is_numeric($product['stock_quantity']) || $product['stock_quantity'] < 0) {
+            throw new Exception("Stock quantity must be a non-negative number.");
+        }
+    
+        $valid_genders = ['male', 'female', 'unisex'];
+        if (!in_array(strtolower($product['gender']), $valid_genders)) {
+            throw new Exception("Gender must be one of: male, female, unisex.");
+        }
+    
+        return $this->dao->insert($product);
+    }
+    
     
     
 }

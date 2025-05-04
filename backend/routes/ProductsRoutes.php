@@ -1,7 +1,6 @@
 <?php
 
 Flight::route('GET /products', function() {
-    // Get all query parameters from the URL
     $query = Flight::request()->query;
 
     if (isset($query['category_id'])) {
@@ -27,4 +26,16 @@ Flight::route('GET /products', function() {
     }
 
     Flight::json($products);
+});
+
+// add a new product
+Flight::route('POST /products', function() {
+    $data = Flight::request()->data->getData();
+
+    try {
+        $product = Flight::productsService()->add($data);
+        Flight::json(['message' => 'Product added successfully', 'product' => $product]);
+    } catch (Exception $e) {
+        Flight::json(['error' => $e->getMessage()], 400);
+    }
 });
