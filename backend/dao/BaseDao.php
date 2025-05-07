@@ -1,5 +1,5 @@
 <?php
-  require_once './config.php';
+require_once __DIR__ . '/config.php';
   
   class BaseDao{
     protected $table;
@@ -10,13 +10,13 @@
       $this->connection = Database::connect();
     }
 
-    public function getAll(){
+    public function get_all(){
       $stmt = $this->connection->prepare("SELECT * FROM " . $this->table);
       $stmt->execute();
       return $stmt->fetchAll();
     }
 
-    public function getById($id) {
+    public function get_by_id($id) {
       $stmt = $this->connection->prepare("SELECT * FROM " . $this->table . " WHERE id = :id");
       $stmt->bindParam(':id', $id);
       $stmt->execute();
