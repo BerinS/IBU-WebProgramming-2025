@@ -233,3 +233,54 @@ Flight::route('PUT /cart/items/@item_id', function($item_id) {
         Flight::json(["error" => "Failed to update quantity."], 400);
     }
 });
+
+/**
+ * @OA\Delete(
+ *     path="/cart/{user_id}",
+ *     summary="Delete/clear entire cart",
+ *     description="Deletes all items from the cart and the cart itself",
+ *     tags={"Cart"},
+ *     @OA\Parameter(
+ *         name="user_id",
+ *         in="path",
+ *         required=true,
+ *         description="User ID whose cart to delete",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Cart successfully deleted",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="message", type="string", example="Cart deleted successfully.")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Cart not found",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="Cart not found.")
+ *         )
+ *     ),
+ *     security={{"bearerAuth": {}}}
+ * )
+ */
+Flight::route('DELETE /cart/@user_id', function($user_id) {
+    $cart = Flight::cartService()->getByUser($user_id);
+    
+    if (!$cart) {
+        Flight::json(["error" => "Cart not found."], 404);
+        return;
+    }
+
+    // Delete all items in the cart first
+    Flight::cartItemsService()->deleteAllByCart($cart['id']);
+    
+    // Then delete the cart itself
+    $success = Flight::cartService()->delete($cart['id']);
+
+    if ($success) {
+        Flight::json(["message" => "Cart deleted successfully."]);
+    } else {
+        Flight::json(["error" => "Failed to delete cart."], 500);
+    }
+});
