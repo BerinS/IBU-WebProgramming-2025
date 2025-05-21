@@ -1,30 +1,6 @@
 <?php
 
 /**
- * @OA\Info(
- *     version="1.0.0",
- *     title="E-Commerce API",
- *     description="API documentation for the IBU Web Programming E-Commerce project",
- *     @OA\Contact(
- *         email="admin@example.com",
- *         name="API Support"
- *     )
- * )
- * 
- * @OA\Server(
- *     url="http://localhost/IBU-WebProgramming-2025/backend",
- *     description="Local development server"
- * )
- * 
- * @OA\SecurityScheme(
- *     securityScheme="bearerAuth",
- *     type="http",
- *     scheme="bearer",
- *     bearerFormat="JWT"
- * )
- */
-
-/**
  * @OA\Tag(
  *     name="products",
  *     description="API endpoints for product management"
@@ -80,7 +56,23 @@
  *      ),
  *      @OA\Response(
  *          response=200,
- *          description="Array of products matching filters"
+ *          description="Array of products matching filters",
+ *          @OA\JsonContent(
+ *              type="array",
+ *              @OA\Items(
+ *                  @OA\Property(property="id", type="integer", example=1),
+ *                  @OA\Property(property="name", type="string", example="Smart Watch Pro"),
+ *                  @OA\Property(property="description", type="string", example="Premium smart watch with health tracking"),
+ *                  @OA\Property(property="price", type="number", format="float", example=299.99),
+ *                  @OA\Property(property="category_id", type="integer", example=1),
+ *                  @OA\Property(property="brand", type="string", example="TechBrand"),
+ *                  @OA\Property(property="stock_quantity", type="integer", example=100),
+ *                  @OA\Property(property="gender", type="string", example="unisex"),
+ *                  @OA\Property(property="image_url", type="string", example="watch.jpg"),
+ *                  @OA\Property(property="created_at", type="string", format="date-time"),
+ *                  @OA\Property(property="updated_at", type="string", format="date-time")
+ *              )
+ *          )
  *      ),
  *      security={{"bearerAuth": {}}}
  * )
@@ -140,7 +132,21 @@ Flight::route('GET /products', function() {
  *         description="Product created successfully",
  *         @OA\JsonContent(
  *             @OA\Property(property="message", type="string", example="Product added successfully"),
- *             @OA\Property(property="product", type="object")
+ *             @OA\Property(
+ *                 property="product",
+ *                 type="object",
+ *                 @OA\Property(property="id", type="integer", example=1),
+ *                 @OA\Property(property="name", type="string", example="Smart Watch Pro"),
+ *                 @OA\Property(property="description", type="string", example="Premium smart watch with health tracking"),
+ *                 @OA\Property(property="price", type="number", format="float", example=299.99),
+ *                 @OA\Property(property="category_id", type="integer", example=1),
+ *                 @OA\Property(property="brand", type="string", example="TechBrand"),
+ *                 @OA\Property(property="stock_quantity", type="integer", example=100),
+ *                 @OA\Property(property="gender", type="string", example="unisex"),
+ *                 @OA\Property(property="image_url", type="string", example="watch.jpg"),
+ *                 @OA\Property(property="created_at", type="string", format="date-time"),
+ *                 @OA\Property(property="updated_at", type="string", format="date-time")
+ *             )
  *         )
  *     ),
  *     @OA\Response(
@@ -238,7 +244,24 @@ Flight::route('GET /products/@id', function($id) {
  *     ),
  *     @OA\Response(
  *         response=200,
- *         description="Product updated successfully"
+ *         description="Product updated successfully",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="message", type="string", example="Product updated successfully"),
+ *             @OA\Property(
+ *                 property="product",
+ *                 type="object",
+ *                 @OA\Property(property="id", type="integer"),
+ *                 @OA\Property(property="name", type="string"),
+ *                 @OA\Property(property="description", type="string"),
+ *                 @OA\Property(property="price", type="number"),
+ *                 @OA\Property(property="category_id", type="integer"),
+ *                 @OA\Property(property="brand", type="string"),
+ *                 @OA\Property(property="stock_quantity", type="integer"),
+ *                 @OA\Property(property="gender", type="string"),
+ *                 @OA\Property(property="image_url", type="string"),
+ *                 @OA\Property(property="updated_at", type="string", format="date-time")
+ *             )
+ *         )
  *     ),
  *     @OA\Response(
  *         response=404,

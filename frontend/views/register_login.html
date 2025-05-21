@@ -1,11 +1,12 @@
 <div class="auth-wrapper hero">
   <div class="auth-box" id="auth-login">
     <h1 class="auth-title">Login</h1>
-    <form class="auth-form">
-      <label for="auth-username" class="auth-label">Username</label>
-      <input type="text" id="auth-username" name="username" class="auth-input" required>
+    <form class="auth-form" id="login-form">
+      <label for="auth-email" class="auth-label">Email</label>
+      <input type="email" id="auth-email" name="email" class="auth-input" required>
       <label for="auth-password" class="auth-label">Password</label>
       <input type="password" id="auth-password" name="password" class="auth-input" required>
+      <div class="auth-error" id="login-error" style="display: none; color: red; margin-bottom: 10px;"></div>
       <button type="submit" class="auth-button">Login</button>
     </form>
     <p class="auth-text">Don't have an account? <a href="#" id="auth-signup-link" class="auth-link">Sign up</a></p>
@@ -13,47 +14,84 @@
 
   <div class="auth-box" id="auth-signup" style="display: none;">
     <h1 class="auth-title">Sign Up</h1>
-    <form class="auth-form">
-      <label for="auth-new-username" class="auth-label">Username</label>
-      <input type="text" id="auth-new-username" name="new-username" class="auth-input" required>
+    <form class="auth-form" id="register-form">
       <label for="auth-new-email" class="auth-label">Email</label>
-      <input type="email" id="auth-new-email" name="new-email" class="auth-input" required>
+      <input type="email" id="auth-new-email" name="email" class="auth-input" required>
       <label for="auth-new-password" class="auth-label">Password</label>
-      <input type="password" id="auth-new-password" name="new-password" class="auth-input" required>
+      <input type="password" id="auth-new-password" name="password" class="auth-input" required>
+      <div class="auth-error" id="register-error" style="display: none; color: red; margin-bottom: 10px;"></div>
       <button type="submit" class="auth-button">Sign Up</button>
     </form>
     <p class="auth-text">Already have an account? <a href="#" id="auth-login-link" class="auth-link">Login</a></p>
   </div>
 </div>
 
-
 <script>
-  
 // Login / Register page
 const authLoginForm = document.getElementById('auth-login');
 const authSignupForm = document.getElementById('auth-signup');
 const authLoginLink = document.getElementById('auth-login-link');
 const authSignupLink = document.getElementById('auth-signup-link');
+const loginForm = document.getElementById('login-form');
+const registerForm = document.getElementById('register-form');
+const loginError = document.getElementById('login-error');
+const registerError = document.getElementById('register-error');
 
+// Switch between login and register forms
 authLoginLink.addEventListener('click', (event) => {
   event.preventDefault();
   authSignupForm.style.display = 'none';
   authLoginForm.style.display = 'block';
-
-  setTimeout(() => {
-    authSignupForm.style.opacity = 0;
-    authLoginForm.style.opacity = 1;
-  }, 10);
+  loginError.style.display = 'none';
+  registerError.style.display = 'none';
 });
 
 authSignupLink.addEventListener('click', (event) => {
   event.preventDefault();
   authLoginForm.style.display = 'none';
   authSignupForm.style.display = 'block';
-
-  setTimeout(() => {
-    authLoginForm.style.opacity = 0;
-    authSignupForm.style.opacity = 1;
-  }, 10);
+  loginError.style.display = 'none';
+  registerError.style.display = 'none';
 });
+
+// Handle login form submission
+loginForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const email = document.getElementById('auth-email').value;
+  const password = document.getElementById('auth-password').value;
+  
+  const result = await login(email, password);
+  
+  if (result.success) {
+    window.location.href = '#page1'; // Redirect to home page
+  } else {
+    loginError.textContent = result.error;
+    loginError.style.display = 'block';
+  }
+});
+
+// Handle register form submission
+registerForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const email = document.getElementById('auth-new-email').value;
+  const password = document.getElementById('auth-new-password').value;
+  
+  const result = await register(email, password);
+  
+  if (result.success) {
+    // Switch to login form after successful registration
+    authSignupForm.style.display = 'none';
+    authLoginForm.style.display = 'block';
+    loginError.style.display = 'none';
+    document.getElementById('auth-email').value = email;
+  } else {
+    registerError.textContent = result.error;
+    registerError.style.display = 'block';
+  }
+});
+
+// Check if user is already logged in
+if (isLoggedIn()) {
+  window.location.href = '#page1';
+}
 </script>
