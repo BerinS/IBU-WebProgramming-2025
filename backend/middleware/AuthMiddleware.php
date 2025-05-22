@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../dao/config.php';
+require_once __DIR__ . '/../data/roles.php';
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
@@ -55,6 +56,57 @@ class JWTMiddleware {
             ], 401);
             exit();
         }
+    }
+
+    /**
+     * Authorize a single role
+     * @param string $requiredRole The role required to access the resource
+     * @return bool Returns true if authorized, halts execution if not
+     */
+    public function authorizeRole($requiredRole) {
+        $user = Flight::get('user');
+        if (!isset($user->role) || $user->role !== $requiredRole) {
+            Flight::json([
+                'success' => false,
+                'message' => 'Access denied: insufficient privileges'
+            ], 403);
+            exit();
+        }
+        return true;
+    }
+
+    /**
+     * Authorize multiple roles
+     * @param array $roles Array of roles that can access the resource
+     * @return bool Returns true if authorized, halts execution if not
+     */
+    public function authorizeRoles($roles) {
+        $user = Flight::get('user');
+        if (!isset($user->role) || !in_array($user->role, $roles)) {
+            Flight::json([
+                'success' => false,
+                'message' => 'Forbidden: role not allowed'
+            ], 403);
+            exit();
+        }
+        return true;
+    }
+
+    /**
+     * Authorize based on permission
+     * @param string $permission The permission required to access the resource
+     * @return bool Returns true if authorized, halts execution if not
+     */
+    public function authorizePermission($permission) {
+        $user = Flight::get('user');
+        if (!isset($user->permissions) || !in_array($permission, $user->permissions)) {
+            Flight::json([
+                'success' => false,
+                'message' => 'Access denied: permission missing'
+            ], 403);
+            exit();
+        }
+        return true;
     }
 
     private function isExcludedPath($path) {

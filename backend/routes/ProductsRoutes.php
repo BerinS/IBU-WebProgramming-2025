@@ -160,9 +160,13 @@ Flight::route('GET /products', function() {
  * )
  */
 
- 
 // add a new product
 Flight::route('POST /products', function() {
+    // Check if user has admin role or create_product permission
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN]);
+    // Alternatively, you can use permission-based check:
+    // Flight::auth_middleware()->authorizePermission('create_product');
+
     $data = Flight::request()->data->getData();
 
     try {
@@ -275,6 +279,11 @@ Flight::route('GET /products/@id', function($id) {
  * )
  */
 Flight::route('PUT /products/@id', function($id) {
+    // Check if user has admin/employee role or update_product permission
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::EMPLOYEE]);
+    // Alternatively:
+    // Flight::auth_middleware()->authorizePermission('update_product');
+    
     $data = Flight::request()->data->getData();
     
     try {
@@ -313,6 +322,11 @@ Flight::route('PUT /products/@id', function($id) {
  * )
  */
 Flight::route('DELETE /products/@id', function($id) {
+    // Only admin can delete products
+    Flight::auth_middleware()->authorizeRole(Roles::ADMIN);
+    // Alternatively:
+    // Flight::auth_middleware()->authorizePermission('delete_product');
+
     $result = Flight::productsService()->delete($id);
     if ($result) {
         Flight::json(['message' => 'Product deleted successfully']);

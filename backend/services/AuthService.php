@@ -2,6 +2,7 @@
 require_once 'BaseService.php';
 require_once __DIR__ . '/../dao/AuthDao.php';
 require_once __DIR__ . '/../dao/config.php';
+require_once __DIR__ . '/../data/roles.php';
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
@@ -38,9 +39,12 @@ class AuthService extends BaseService {
            ];
        }
 
+       // Set default role as customer if not specified
+       if (!isset($entity['role'])) {
+           $entity['role'] = Roles::USER;
+       }
 
        $entity['password'] = password_hash($entity['password'], PASSWORD_BCRYPT);
-
 
        try {
            $entity = parent::add($entity);
@@ -80,7 +84,12 @@ class AuthService extends BaseService {
        unset($user['password']);
       
        $jwt_payload = [
-           'user' => $user,
+           'user' => [
+               'id' => $user['id'],
+               'email' => $user['email'],
+               'role' => $user['role'],
+               'permissions' => $this->getRolePermissions($user['role'])
+           ],
            'iat' => time(),
            'exp' => time() + (60 * 60 * 24) // valid for 24 hours
        ];
@@ -97,7 +106,7 @@ class AuthService extends BaseService {
                'success' => true, 
                'data' => [
                    'token' => $token,
-                   'user' => $user
+                   'user' => $jwt_payload['user']
                ]
            ];
        } catch (Exception $e) {
@@ -107,5 +116,47 @@ class AuthService extends BaseService {
                'status' => 500
            ];
        }
+   }
+
+   /**
+    * Get permissions for a specific role
+    * @param string $role The role to get permissions for
+    * @return array Array of permissions
+    */
+   private function getRolePermissions($role) {
+       $permissions = [];
+       
+       switch ($role) {
+           case Roles::ADMIN:
+               $permissions = [
+                   'create_product',
+                   'update_product',
+                   'delete_product',
+                   'view_all_orders',
+                   'manage_users',
+                   'manage_inventory'
+               ];
+               break;
+               
+           case Roles::EMPLOYEE:
+               $permissions = [
+                   'view_products',
+                   'update_product',
+                   'view_orders',
+                   'update_order_status'
+               ];
+               break;
+               
+           case Roles::USER:
+               $permissions = [
+                   'view_products',
+                   'place_order',
+                   'view_own_orders',
+                   'manage_cart'
+               ];
+               break;
+       }
+       
+       return $permissions;
    }
 }
