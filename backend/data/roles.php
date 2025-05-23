@@ -1,7 +1,7 @@
 <?php
 class Roles {
    const ADMIN = "admin";
-   const USER = "customer";
+   const CUSTOMER = "customer";
    const EMPLOYEE = "employee";
 
 }

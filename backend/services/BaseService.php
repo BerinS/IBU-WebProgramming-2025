@@ -21,7 +21,7 @@ class BaseService
 
     public function add($entity)
     {
-        return $this->dao->add($entity);
+        return $this->dao->insert($entity);
     }
 
     public function update($entity, $id, $id_column = "id")

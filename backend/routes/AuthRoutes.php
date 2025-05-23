@@ -1,160 +1,130 @@
 <?php
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
-Flight::group('/auth', function() {
-   /**
-    * @OA\Post(
-    *     path="/auth/register",
-    *     summary="Register new user.",
-    *     description="Add a new user to the database.",
-    *     tags={"auth"},
-    *     @OA\RequestBody(
-    *         description="User registration details",
-    *         required=true,
-    *         @OA\MediaType(
-    *             mediaType="application/json",
-    *             @OA\Schema(
-    *                 required={"password", "email"},
-    *                 @OA\Property(
-    *                     property="password",
-    *                     type="string",
-    *                     format="password",
-    *                     example="some_password",
-    *                     description="User password"
-    *                 ),
-    *                 @OA\Property(
-    *                     property="email",
-    *                     type="string",
-    *                     format="email",
-    *                     example="demo@gmail.com",
-    *                     description="User email"
-    *                 )
-    *             )
-    *         )
-    *     ),
-    *     @OA\Response(
-    *         response=200,
-    *         description="User successfully registered",
-    *         @OA\JsonContent(
-    *             @OA\Property(property="message", type="string", example="User registered successfully"),
-    *             @OA\Property(
-    *                 property="data",
-    *                 type="object",
-    *                 @OA\Property(property="id", type="integer", example=1),
-    *                 @OA\Property(property="email", type="string", example="demo@gmail.com")
-    *             )
-    *         )
-    *     ),
-    *     @OA\Response(
-    *         response=400,
-    *         description="Bad request - Invalid input data"
-    *     ),
-    *     @OA\Response(
-    *         response=409,
-    *         description="Conflict - Email already exists"
-    *     ),
-    *     @OA\Response(
-    *         response=500,
-    *         description="Internal server error"
-    *     )
-    * )
-    */
-   Flight::route("POST /register", function () {
-       $data = Flight::request()->data->getData();
 
-       if (!isset($data['email']) || !isset($data['password'])) {
-           Flight::json(['error' => 'Email and password are required'], 400);
-           return;
-       }
+/**
+ * @OA\Post(
+ *     path="/auth/register",
+ *     tags={"Authentication"},
+ *     summary="Register a new user",
+ *     @OA\RequestBody(
+ *         @OA\JsonContent(
+ *             type="object",
+ *             required={"email", "password", "first_name", "last_name"},
+ *             @OA\Property(property="email", type="string"),
+ *             @OA\Property(property="password", type="string"),
+ *             @OA\Property(property="first_name", type="string"),
+ *             @OA\Property(property="last_name", type="string")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Success",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="success", type="boolean"),
+ *             @OA\Property(property="message", type="string"),
+ *             @OA\Property(property="data", type="object")
+ *         )
+ *     )
+ * )
+ */
+Flight::route('POST /auth/register', function() {
+    try {
+        error_log("Registration attempt started");
+        $data = Flight::request()->data->getData();
+        error_log("Received registration data: " . json_encode($data));
+        
+        if (!isset($data['email']) || !isset($data['password'])) {
+            error_log("Missing required fields");
+            Flight::json(['error' => 'Email and password are required'], 400);
+            return;
+        }
 
-       $response = Flight::auth_service()->register($data);
-  
-       if ($response['success']) {
-           Flight::json([
-               'message' => 'User registered successfully',
-               'data' => $response['data']
-           ], 200);
-       } else {
-           $status = isset($response['status']) ? $response['status'] : 500;
-           Flight::json(['error' => $response['error']], $status);
-       }
-   });
-   /**
-    * @OA\Post(
-    *     path="/auth/login",
-    *     tags={"auth"},
-    *     summary="Login to system using email and password",
-    *     description="Authenticate user and return JWT token",
-    *     @OA\RequestBody(
-    *         description="Login Credentials",
-    *         required=true,
-    *         @OA\JsonContent(
-    *             required={"email","password"},
-    *             @OA\Property(
-    *                 property="email", 
-    *                 type="string", 
-    *                 format="email",
-    *                 example="demo@gmail.com", 
-    *                 description="User email address"
-    *             ),
-    *             @OA\Property(
-    *                 property="password", 
-    *                 type="string", 
-    *                 format="password",
-    *                 example="some_password", 
-    *                 description="User password"
-    *             )
-    *         )
-    *     ),
-    *     @OA\Response(
-    *         response=200,
-    *         description="Login successful",
-    *         @OA\JsonContent(
-    *             @OA\Property(property="message", type="string", example="User logged in successfully"),
-    *             @OA\Property(
-    *                 property="data",
-    *                 type="object",
-    *                 @OA\Property(property="token", type="string", example="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."),
-    *                 @OA\Property(property="user", type="object",
-    *                     @OA\Property(property="id", type="integer", example=1),
-    *                     @OA\Property(property="email", type="string", example="demo@gmail.com")
-    *                 )
-    *             )
-    *         )
-    *     ),
-    *     @OA\Response(
-    *         response=400,
-    *         description="Bad request - Invalid credentials"
-    *     ),
-    *     @OA\Response(
-    *         response=401,
-    *         description="Unauthorized - Invalid email or password"
-    *     ),
-    *     @OA\Response(
-    *         response=500,
-    *         description="Internal server error"
-    *     )
-    * )
-    */
-   Flight::route('POST /login', function() {
-       $data = Flight::request()->data->getData();
+        error_log("Calling auth service register method");
+        $auth_service = Flight::auth_service();
+        if (!$auth_service) {
+            error_log("Auth service not properly initialized");
+            Flight::json(['error' => 'Internal server error - Auth service not available'], 500);
+            return;
+        }
 
-       if (!isset($data['email']) || !isset($data['password'])) {
-           Flight::json(['error' => 'Email and password are required'], 400);
-           return;
-       }
+        $response = $auth_service->register($data);
+        error_log("Registration response: " . json_encode($response));
 
-       $response = Flight::auth_service()->login($data);
-  
-       if ($response['success']) {
-           Flight::json([
-               'message' => 'User logged in successfully',
-               'data' => $response['data']
-           ], 200);
-       } else {
-           $status = isset($response['status']) ? $response['status'] : 401;
-           Flight::json(['error' => $response['error']], $status);
-       }
-   });
+        if ($response['success']) {
+            Flight::json([
+                'success' => true,
+                'message' => 'User registered successfully',
+                'data' => $response['data']
+            ], 200);
+        } else {
+            $status = isset($response['status']) ? $response['status'] : 500;
+            Flight::json([
+                'success' => false,
+                'message' => $response['error'],
+                'error' => $response['error']
+            ], $status);
+        }
+    } catch (Exception $e) {
+        error_log("Registration error: " . $e->getMessage());
+        error_log("Stack trace: " . $e->getTraceAsString());
+        Flight::json(['error' => 'Internal server error: ' . $e->getMessage()], 500);
+    }
+});
+
+/**
+ * @OA\Post(
+ *     path="/auth/login",
+ *     tags={"Authentication"},
+ *     summary="Login user",
+ *     @OA\RequestBody(
+ *         @OA\JsonContent(
+ *             type="object",
+ *             required={"email", "password"},
+ *             @OA\Property(property="email", type="string"),
+ *             @OA\Property(property="password", type="string")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Success",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="message", type="string"),
+ *             @OA\Property(property="data", type="object")
+ *         )
+ *     )
+ * )
+ */
+Flight::route('POST /auth/login', function() {
+    $data = Flight::request()->data->getData();
+    error_log("Login route - received data: " . json_encode($data));
+
+    if (!isset($data['email']) || !isset($data['password'])) {
+        error_log("Login route - missing email or password");
+        Flight::json(['error' => 'Email and password are required'], 400);
+        return;
+    }
+
+    $response = Flight::auth_service()->login($data);
+    error_log("Login route - auth service response: " . json_encode($response));
+
+    if ($response['success']) {
+        error_log("Login route - sending success response");
+        Flight::json([
+            'success' => true,
+            'message' => 'User logged in successfully',
+            'data' => $response['data']
+        ], 200);
+    } else {
+        error_log("Login route - sending error response");
+        $status = isset($response['status']) ? $response['status'] : 401;
+        Flight::json([
+            'success' => false,
+            'message' => $response['error'],
+            'error' => $response['error']
+        ], $status);
+    }
 });
 ?>

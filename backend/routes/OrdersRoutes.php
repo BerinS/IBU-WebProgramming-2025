@@ -1,6 +1,19 @@
 <?php
 require_once __DIR__ . '/../data/roles.php';
 
+/**
+ * @OA\Schema(
+ *     schema="Order",
+ *     required={"id", "user_id", "status", "total_amount"},
+ *     @OA\Property(property="id", type="integer"),
+ *     @OA\Property(property="user_id", type="integer"),
+ *     @OA\Property(property="status", type="string", enum={"pending", "processing", "shipped", "delivered", "cancelled"}),
+ *     @OA\Property(property="total_amount", type="number", format="float"),
+ *     @OA\Property(property="created_at", type="string", format="date-time"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time")
+ * )
+ */
+
 Flight::group('/orders', function() {
     /**
      * @OA\Get(

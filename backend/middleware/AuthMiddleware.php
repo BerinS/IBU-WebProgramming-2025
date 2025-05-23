@@ -46,7 +46,12 @@ class JWTMiddleware {
             );
 
             // Add decoded token to Flight instance for use in routes
-            Flight::set('user', $decoded->user);
+            Flight::set('user', (object)[
+                'id' => $decoded->id,
+                'email' => $decoded->email,
+                'role' => $decoded->role,
+                'permissions' => $decoded->permissions
+            ]);
             
             return true;
         } catch (\Exception $e) {

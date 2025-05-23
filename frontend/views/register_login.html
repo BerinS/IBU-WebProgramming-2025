@@ -15,10 +15,16 @@
   <div class="auth-box" id="auth-signup" style="display: none;">
     <h1 class="auth-title">Sign Up</h1>
     <form class="auth-form" id="register-form">
+      <label for="auth-first-name" class="auth-label">First Name</label>
+      <input type="text" id="auth-first-name" name="first_name" class="auth-input" required>
+      <label for="auth-last-name" class="auth-label">Last Name</label>
+      <input type="text" id="auth-last-name" name="last_name" class="auth-input" required>
       <label for="auth-new-email" class="auth-label">Email</label>
       <input type="email" id="auth-new-email" name="email" class="auth-input" required>
       <label for="auth-new-password" class="auth-label">Password</label>
       <input type="password" id="auth-new-password" name="password" class="auth-input" required>
+      <label for="auth-confirm-password" class="auth-label">Confirm Password</label>
+      <input type="password" id="auth-confirm-password" name="confirm_password" class="auth-input" required>
       <div class="auth-error" id="register-error" style="display: none; color: red; margin-bottom: 10px;"></div>
       <button type="submit" class="auth-button">Sign Up</button>
     </form>
@@ -27,71 +33,129 @@
 </div>
 
 <script>
-// Login / Register page
-const authLoginForm = document.getElementById('auth-login');
-const authSignupForm = document.getElementById('auth-signup');
-const authLoginLink = document.getElementById('auth-login-link');
-const authSignupLink = document.getElementById('auth-signup-link');
-const loginForm = document.getElementById('login-form');
-const registerForm = document.getElementById('register-form');
-const loginError = document.getElementById('login-error');
-const registerError = document.getElementById('register-error');
+$(document).ready(function() {
+    const authLoginForm = $('#auth-login');
+    const authSignupForm = $('#auth-signup');
+    const authLoginLink = $('#auth-login-link');
+    const authSignupLink = $('#auth-signup-link');
+    const loginError = $('#login-error');
+    const registerError = $('#register-error');
 
-// Switch between login and register forms
-authLoginLink.addEventListener('click', (event) => {
-  event.preventDefault();
-  authSignupForm.style.display = 'none';
-  authLoginForm.style.display = 'block';
-  loginError.style.display = 'none';
-  registerError.style.display = 'none';
+    // Switch between login and register forms
+    authLoginLink.on('click', function(e) {
+        e.preventDefault();
+        authSignupForm.hide();
+        authLoginForm.show();
+        loginError.hide();
+        registerError.hide();
+    });
+
+    authSignupLink.on('click', function(e) {
+        e.preventDefault();
+        authLoginForm.hide();
+        authSignupForm.show();
+        loginError.hide();
+        registerError.hide();
+    });
+
+    // Initialize form validation
+    $("#login-form").validate({
+        rules: {
+            email: {
+                required: true,
+                email: true
+            },
+            password: {
+                required: true,
+                minlength: 6
+            }
+        },
+        messages: {
+            email: {
+                required: "Please enter your email",
+                email: "Please enter a valid email address"
+            },
+            password: {
+                required: "Please enter your password",
+                minlength: "Password must be at least 6 characters long"
+            }
+        },
+        errorElement: 'div',
+        errorPlacement: function(error, element) {
+            error.addClass('auth-error');
+            error.insertAfter(element);
+        },
+        submitHandler: function(form) {
+            const formData = {
+                email: $('#auth-email').val(),
+                password: $('#auth-password').val()
+            };
+            UserService.login(formData);
+        }
+    });
+
+    $("#register-form").validate({
+        rules: {
+            first_name: {
+                required: true,
+                minlength: 2
+            },
+            last_name: {
+                required: true,
+                minlength: 2
+            },
+            email: {
+                required: true,
+                email: true
+            },
+            password: {
+                required: true,
+                minlength: 6
+            },
+            confirm_password: {
+                required: true,
+                minlength: 6,
+                equalTo: "#auth-new-password"
+            }
+        },
+        messages: {
+            first_name: {
+                required: "Please enter your first name",
+                minlength: "First name must be at least 2 characters long"
+            },
+            last_name: {
+                required: "Please enter your last name",
+                minlength: "Last name must be at least 2 characters long"
+            },
+            email: {
+                required: "Please enter your email",
+                email: "Please enter a valid email address"
+            },
+            password: {
+                required: "Please enter your password",
+                minlength: "Password must be at least 6 characters long"
+            },
+            confirm_password: {
+                required: "Please confirm your password",
+                minlength: "Password must be at least 6 characters long",
+                equalTo: "Passwords do not match"
+            }
+        },
+        errorElement: 'div',
+        errorPlacement: function(error, element) {
+            error.addClass('auth-error');
+            error.insertAfter(element);
+        },
+        submitHandler: function(form) {
+            const formData = {
+                first_name: $('#auth-first-name').val(),
+                last_name: $('#auth-last-name').val(),
+                email: $('#auth-new-email').val(),
+                password: $('#auth-new-password').val(),
+                confirm_password: $('#auth-confirm-password').val()
+            };
+            UserService.register(formData);
+        }
+    });
 });
-
-authSignupLink.addEventListener('click', (event) => {
-  event.preventDefault();
-  authLoginForm.style.display = 'none';
-  authSignupForm.style.display = 'block';
-  loginError.style.display = 'none';
-  registerError.style.display = 'none';
-});
-
-// Handle login form submission
-loginForm.addEventListener('submit', async (event) => {
-  event.preventDefault();
-  const email = document.getElementById('auth-email').value;
-  const password = document.getElementById('auth-password').value;
-  
-  const result = await login(email, password);
-  
-  if (result.success) {
-    window.location.href = '#page1'; // Redirect to home page
-  } else {
-    loginError.textContent = result.error;
-    loginError.style.display = 'block';
-  }
-});
-
-// Handle register form submission
-registerForm.addEventListener('submit', async (event) => {
-  event.preventDefault();
-  const email = document.getElementById('auth-new-email').value;
-  const password = document.getElementById('auth-new-password').value;
-  
-  const result = await register(email, password);
-  
-  if (result.success) {
-    // Switch to login form after successful registration
-    authSignupForm.style.display = 'none';
-    authLoginForm.style.display = 'block';
-    loginError.style.display = 'none';
-    document.getElementById('auth-email').value = email;
-  } else {
-    registerError.textContent = result.error;
-    registerError.style.display = 'block';
-  }
-});
-
-// Check if user is already logged in
-if (isLoggedIn()) {
-  window.location.href = '#page1';
-}
 </script>
