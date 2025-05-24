@@ -1,0 +1,111 @@
+<div class="container profile_container" style="padding-bottom: 20px;">
+    <div class="row">
+        
+        <div class="element_container">
+            <div class="d-flex justify-content-between align-items-center mb-3" style="padding-top: 20px;">
+                <h3>Account Information</h3>
+                <button class="btn btn-danger" id="logout-btn">
+                    <i class="bi bi-box-arrow-right"></i> Log Out
+                </button>
+            </div>            
+
+            <!-- User Info -->
+            <div class="user-info-container">
+                <div class="form-group mb-3">
+                    <label>First Name</label>
+                    <input type="text" class="form-control" id="first_name" readonly>
+                </div>
+                <div class="form-group mb-3">
+                    <label>Last Name</label>
+                    <input type="text" class="form-control" id="last_name" readonly>
+                </div>
+                <div class="form-group mb-3">
+                    <label>Email</label>
+                    <input type="email" class="form-control" id="email" readonly>
+                </div>
+                <div class="form-group mb-3">
+                    <label>Role</label>
+                    <input type="text" class="form-control" id="role" readonly>
+                </div>
+                <button class="btn btn-primary" id="edit-profile-btn">
+                    <i class="bi bi-pencil"></i> Edit Profile
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    // Strict authentication check
+    if (!Utils.isAuthenticated()) {
+        window.location.replace(window.location.pathname + '#register_login');
+        return;
+    }
+    
+    // Load user data
+    const user = Utils.getCurrentUser();
+    if (!user) {
+        window.location.replace(window.location.pathname + '#register_login');
+        return;
+    }
+
+    // Clear and populate user info
+    $('#first_name, #last_name, #email, #role').val('');
+    $('#first_name').val(user.first_name || '');
+    $('#last_name').val(user.last_name || '');
+    $('#email').val(user.email || '');
+    $('#role').val(user.role || '');
+
+    // Logout button handler
+    $('#logout-btn').click(function(e) {
+        e.preventDefault();
+        UserService.logout();
+    });
+
+    // Edit profile button handler
+    $('#edit-profile-btn').click(function() {
+        const inputs = ['first_name', 'last_name'];
+        inputs.forEach(id => {
+            $(`#${id}`).prop('readonly', false);
+        });
+        $(this).hide();
+        
+        // Add save button
+        $(this).after(`
+            <button class="btn btn-success mt-3" id="save-profile-btn">
+                <i class="bi bi-check2"></i> Save Changes
+            </button>
+            <button class="btn btn-secondary mt-3 ml-2" id="cancel-edit-btn">
+                <i class="bi bi-x"></i> Cancel
+            </button>
+        `);
+
+        // Save button handler
+        $('#save-profile-btn').click(function() {
+            const updatedData = {
+                first_name: $('#first_name').val().trim(),
+                last_name: $('#last_name').val().trim()
+            };
+            
+            // Validate input
+            if (!updatedData.first_name || !updatedData.last_name) {
+                Utils.showError("First name and last name are required");
+                return;
+            }
+            
+            UserService.updateProfile(updatedData);
+        });
+
+        // Cancel button handler
+        $('#cancel-edit-btn').click(function() {
+            const user = Utils.getCurrentUser();
+            inputs.forEach(id => {
+                $(`#${id}`).prop('readonly', true).val(user[id] || '');
+            });
+            $('#edit-profile-btn').show();
+            $('#save-profile-btn, #cancel-edit-btn').remove();
+        });
+    });
+});
+</script>

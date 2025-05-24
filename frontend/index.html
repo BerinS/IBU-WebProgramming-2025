@@ -17,6 +17,7 @@
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
 		<link href="css/tiny-slider.css" rel="stylesheet">
 		<link href="css/style.css" rel="stylesheet">
+		<link href="css/dashboard_style.css" rel="stylesheet">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 		<title>WatchLand</title>
 	</head>
@@ -27,7 +28,7 @@
 		<nav class="custom-navbar navbar navbar navbar-expand-md navbar-light" arial-label="Furni navigation bar">
 
 			<div class="container">
-				<a class="navbar-brand" href="index.html">Watch<span>Land.</span></a>
+				<a class="navbar-brand" href="#page1">Watch<span>Land.</span></a>
 
 				<button class="navbar-toggler custom-toggler" type="button" data-toggle="collapse" data-target="#navbarsFurni" aria-controls="navbarsFurni" aria-expanded="false" aria-label="Toggle navigation">
 					<span class="navbar-toggler-icon"></span>
@@ -45,6 +46,8 @@
 						<li><a class="nav-link" href="#services">Services</a></li>
 						<li><a class="nav-link" href="#blog">Blog</a></li>
 						<li><a class="nav-link" href="#contact">Contact</a></li>
+						<li><a class="nav-link" href="#dashboard" id="dashboard_link">Dashboard</a></li>
+
 					</ul>
 
 					<ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
@@ -98,6 +101,12 @@
 				</section>
 				<section id="thankyou" data-load="thankyou.html">
 					<!--Contents of Thank You-->
+				</section>
+				<section id="dashboard" data-load="dashboard.html">
+					<!--Contents of Dashboard-->
+				</section>
+				<section id="profile" data-load="profile.html">
+					<!--Contents of Profile-->
 				</section>
 			</main>		
 		</section>
@@ -232,6 +241,7 @@
 		<script src="utils/utils.js"></script>
 		<script src="utils/rest-client.js"></script>
 		<script src="services/user-service.js"></script>
+		<script src="services/product-service.js"></script>
 
 		<!-- Initialize spapp -->
 		<script>
@@ -240,7 +250,17 @@
 					defaultView: "#page1",
 					templateDir: "./views/"
 				});
-				app.run();
+				
+				// Add error handling for view loading
+				$(document).on('spapp.error', function(e, data) {
+					console.error('Error loading view:', data);
+				});
+
+				// Prevent double initialization
+				if (!window.spappInitialized) {
+					app.run();
+					window.spappInitialized = true;
+				}
 			});
 		</script>
 

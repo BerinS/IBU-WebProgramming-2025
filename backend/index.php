@@ -21,6 +21,7 @@ $required_files = [
     __DIR__ . '/dao/AuthDao.php',
     __DIR__ . '/services/BaseService.php',
     __DIR__ . '/services/AuthService.php',
+    __DIR__ . '/services/ProductsService.php',
     __DIR__ . '/data/roles.php'
 ];
 
@@ -37,18 +38,23 @@ foreach ($required_files as $file) {
 // Register services
 try {
     Flight::register('auth_service', 'AuthService');
-    error_log("AuthService registered successfully");
+    Flight::register('productsService', 'ProductsService');
+    error_log("Services registered successfully");
 } catch (Exception $e) {
-    error_log("Error registering AuthService: " . $e->getMessage());
+    error_log("Error registering services: " . $e->getMessage());
     error_log("Stack trace: " . $e->getTraceAsString());
 }
 
 // Include routes after service registration
 require_once __DIR__ . '/routes/AuthRoutes.php';
+require_once __DIR__ . '/routes/ProductsRoutes.php';
+require_once __DIR__ . '/routes/CartRoutes.php';
+require_once __DIR__ . '/routes/OrdersRoutes.php';
+require_once __DIR__ . '/routes/UserRoutes.php';
 
-// Add a test route to verify Flight is working
+// Add a test route
 Flight::route('GET /test', function() {
-    Flight::json(['status' => 'success', 'message' => 'Flight is working!']);
+    Flight::json(['status' => 'success', 'message' => 'Test route working']);
 });
 
 // Add a database test route

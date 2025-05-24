@@ -54,7 +54,7 @@ var RestClient = window.RestClient || {
                 console.log('Login response:', response);
                 
                 // Check if response has the expected structure
-                if (!response || !response.data) {
+                if (!response || !response.data || !response.data.user) {
                     console.error('Invalid response structure:', response);
                     Utils.showError('Invalid server response');
                     if (error_callback) error_callback({ responseJSON: { error: 'Invalid server response' } });
@@ -62,9 +62,21 @@ var RestClient = window.RestClient || {
                 }
 
                 try {
-                    // Store token and user data
+                    // Store token
                     localStorage.setItem(Constants.STORAGE.USER_TOKEN, response.data.token);
-                    localStorage.setItem(Constants.STORAGE.USER_DATA, JSON.stringify(response.data.user));
+                    
+                    // Store complete user data
+                    const userData = {
+                        id: response.data.user.id,
+                        email: response.data.user.email,
+                        role: response.data.user.role,
+                        first_name: response.data.user.first_name,
+                        last_name: response.data.user.last_name,
+                        permissions: response.data.user.permissions
+                    };
+                    console.log('Storing user data:', userData);
+                    localStorage.setItem(Constants.STORAGE.USER_DATA, JSON.stringify(userData));
+                    
                     if (callback) callback(response);
                 } catch (e) {
                     console.error('Error processing login response:', e);
@@ -76,10 +88,6 @@ var RestClient = window.RestClient || {
 
         register: function(userData, callback, error_callback) {
             RestClient.post(Constants.API.REGISTER, userData, callback, error_callback);
-        },
-
-        logout: function() {
-            Utils.logout();
         }
     },
 

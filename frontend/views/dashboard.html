@@ -1,0 +1,62 @@
+<div class="container dashboard_container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1><b>Dashboard</b></h1>
+            <hr>
+        </div>
+        <div class="element_container">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3>Products</h3>
+                <button class="btn btn-primary" id="add-product-btn">
+                    <i class="bi bi-plus-circle"></i> Add Product
+                </button>
+            </div>            
+
+            <!-- Products list -->
+            <div class="list-group" id="products-list">
+                <!-- Products will be loaded here dynamically -->
+                <div class="text-center py-3" id="loading-products">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Product Modal -->
+<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="productModalLabel">Add New Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Product form will be added here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    console.log('Dashboard view loaded');
+    
+    // Ensure ProductService is loaded
+    if (typeof ProductService === 'undefined') {
+        console.error('ProductService not loaded');
+        return;
+    }
+
+    // Force load products
+    console.log('Initializing ProductService');
+    ProductService.loadProducts();
+
+    // Add product button handler
+    $('#add-product-btn').click(function() {
+        $('#productModal').modal('show');
+    });
+});
+</script>

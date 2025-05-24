@@ -53,9 +53,12 @@ var Utils = window.Utils || {
         return user && user.permissions && user.permissions.includes(permission);
     },
     logout: function() {
+        // Clear all auth data
         localStorage.removeItem(Constants.STORAGE.USER_TOKEN);
         localStorage.removeItem(Constants.STORAGE.USER_DATA);
-        //window.location.href = '/IBU-WebProgramming-2025/frontend/index.html#register_login';
+        
+        // Force redirect to login page
+        window.location.replace(window.location.pathname + '#register_login');
     },
     showError: function(message) {
         toastr.error(message || 'An error occurred');

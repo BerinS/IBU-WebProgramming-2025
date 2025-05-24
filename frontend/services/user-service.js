@@ -7,21 +7,35 @@ var UserService = window.UserService || {
             return;
         }
 
-        // Check if user is already logged in
-        if (Utils.isAuthenticated()) {
-            // Redirect based on user role
-            const user = Utils.getCurrentUser();
-            if (user.role === Constants.ROLES.ADMIN) {
-                window.location.href = "/IBU-WebProgramming-2025/frontend/index.html#admin";
-                window.location.reload();
-            } else if (user.role === Constants.ROLES.EMPLOYEE) {
-                window.location.href = "/IBU-WebProgramming-2025/frontend/index.html#employee";
-                window.location.reload();
-            } else {
-                window.location.href = "/IBU-WebProgramming-2025/frontend/index.html";
-                window.location.reload();
-            }
-            return;
+        // Check if user is logged in
+        const user = Utils.getCurrentUser();
+        
+        // Handle register/login link visibility
+        const registerLoginLink = $('a[href="#register_login"]').parent();
+        if (user) {
+            // Change link to profile when logged in
+            registerLoginLink.find('a').attr('href', '#profile');
+        } else {
+            // Keep as register_login when not logged in
+            registerLoginLink.find('a').attr('href', '#register_login');
+        }
+
+        // Handle dashboard visibility
+        const dashboardLink = $('#dashboard_link').parent();
+        if (user && (user.role === Constants.ROLES.ADMIN || user.role === Constants.ROLES.EMPLOYEE)) {
+            dashboardLink.show();
+        } else {
+            dashboardLink.hide();
+        }
+
+        // Redirect from profile to login if not authenticated
+        if (window.location.hash === '#profile' && !user) {
+            window.location.hash = 'register_login';
+        }
+
+        // Redirect from register/login to profile if already authenticated
+        if (window.location.hash === '#register_login' && user) {
+            window.location.hash = 'profile';
         }
 
         // Initialize login form validation
@@ -95,22 +109,47 @@ var UserService = window.UserService || {
         // Hide any previous error messages
         $('#login-error').hide();
         
+        // Clear any existing user data first
+        localStorage.removeItem(Constants.STORAGE.USER_TOKEN);
+        localStorage.removeItem(Constants.STORAGE.USER_DATA);
+        
         console.log('Login attempt with email:', entity.email);
         
         RestClient.auth.login(entity.email, entity.password, 
             function(response) {
                 console.log('Login successful!');
-                console.log('Login response:', response);
-                console.log('Current user:', Utils.getCurrentUser());
+                
+                // Store user data in localStorage
+                const userData = {
+                    id: response.data.user.id,
+                    email: response.data.user.email,
+                    role: response.data.user.role,
+                    first_name: response.data.user.first_name,
+                    last_name: response.data.user.last_name,
+                    permissions: response.data.user.permissions
+                };
+                
+                // Clear any existing data first
+                localStorage.removeItem(Constants.STORAGE.USER_TOKEN);
+                localStorage.removeItem(Constants.STORAGE.USER_DATA);
+                
+                // Store new data
+                localStorage.setItem(Constants.STORAGE.USER_TOKEN, response.data.token);
+                localStorage.setItem(Constants.STORAGE.USER_DATA, JSON.stringify(userData));
+                
                 Utils.showSuccess("Login successful!");
+                
+                // Redirect based on role without reload
+                const user = Utils.getCurrentUser();
+                if (user.role === Constants.ROLES.ADMIN || user.role === Constants.ROLES.EMPLOYEE) {
+                    window.location.hash = 'dashboard';
+                } else {
+                    window.location.hash = 'profile';
+                }
+                UserService.init(); // Reinitialize after login
             },
             function(error) {
-                // Show detailed error information
                 console.error('Login error:', error);
-                console.error('Status code:', error.status);
-                console.error('Response:', error.responseJSON);
-                
-                // Show error in the form
                 const errorMessage = error.responseJSON?.message || "Login failed";
                 $('#login-error').text(errorMessage).show();
                 Utils.showError(errorMessage);
@@ -144,15 +183,22 @@ var UserService = window.UserService || {
     },
 
     logout: function() {
-        RestClient.auth.logout();
+        // Clear all user data and redirect
+        Utils.logout();
     },
 
     updateProfile: function(data) {
         RestClient.put(Constants.API.USER_PROFILE, data,
             function(response) {
                 Utils.showSuccess("Profile updated successfully!");
-                // Update stored user data
-                localStorage.setItem(Constants.STORAGE.USER_DATA, JSON.stringify(response.data));
+                // Get current user data
+                const currentUser = Utils.getCurrentUser();
+                // Update only the changed fields
+                const updatedUser = { ...currentUser, ...data };
+                // Store updated user data
+                localStorage.setItem(Constants.STORAGE.USER_DATA, JSON.stringify(updatedUser));
+                // Refresh the page to show updated data
+                window.location.reload();
             },
             function(error) {
                 Utils.showError(error.responseJSON?.message || "Failed to update profile");
@@ -205,4 +251,9 @@ $(document).ready(function() {
     } else {
         console.error('Required dependencies not loaded');
     }
+});
+
+// Initialize on hash change
+$(window).on('hashchange', function() {
+    UserService.init();
 });

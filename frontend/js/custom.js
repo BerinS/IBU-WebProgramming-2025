@@ -93,34 +93,59 @@ $(document).on('click', function(event) {
 $(document).ready(function() {
     // Close on nav link click
     $('.nav-link').on('click', function(e) {
-        e.preventDefault();
-        var href = $(this).attr('href');
+        // Don't prevent default - let the natural hash navigation occur
         forceCloseMobileMenu();
-        setTimeout(function() {
-            window.location.hash = href;
-        }, 200);
-    });
 });
 
-//Force scroll to top and close menu
-window.addEventListener("hashchange", function() {
-    window.scrollTo(0, 0);
+    // Just close menu on init
     forceCloseMobileMenu();
 });
 
 //SPAPP code
 var app = $.spapp({
     defaultView: "#page1",
-    templateDir: "./views/"
+    templateDir: "./views/",
+    cache: true // Enable view caching
 });
 
 // Additional SPAPP handlers
-$(document).on('spapp.view.before', function() {
+$(document).on('spapp.view.before', function(e, view) {
     forceCloseMobileMenu();
+    
+    // Check access to dashboard
+    if (view === '#dashboard') {
+        const user = Utils.getCurrentUser();
+        if (!user || (user.role !== Constants.ROLES.ADMIN && user.role !== Constants.ROLES.EMPLOYEE)) {
+            e.preventDefault();
+            window.location.hash = 'page1';
+            Utils.showError('Access denied. You need admin or employee privileges to access the dashboard.');
+            return false;
+        }
+    }
 });
 
 $(document).on('spapp.view.after', function() {
     forceCloseMobileMenu();
+});
+
+// Hide/show dashboard link based on user role
+function updateDashboardVisibility() {
+    const user = Utils.getCurrentUser();
+    if (user && (user.role === Constants.ROLES.ADMIN || user.role === Constants.ROLES.EMPLOYEE)) {
+        $('#dashboard_link').show();
+    } else {
+        $('#dashboard_link').hide();
+    }
+}
+
+// Update dashboard visibility on page load and after login/logout
+$(document).ready(function() {
+    updateDashboardVisibility();
+});
+
+// Listen for auth changes
+$(document).on('auth.changed', function() {
+    updateDashboardVisibility();
 });
 
 app.run();

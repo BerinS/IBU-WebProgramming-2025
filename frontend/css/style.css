@@ -322,8 +322,6 @@ a.more {
   padding: 7rem 0;  
 }
 
-
-
 .product-section .product-item {
   text-align: center;
   text-decoration: none;
@@ -611,6 +609,7 @@ a.more {
   transform: translate(-50%, -50%);
   z-index: -1;
 }
+
 .testimonial-section {
   padding: 3rem 0 7rem 0; }
 
@@ -1239,3 +1238,51 @@ textarea {
     height: 50px;
     border-radius: 50%;
     background: rgba(59, 93, 80, 0.2); }
+
+.profile_container {
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+
+.user-info-container {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+}
+
+.user-info-container label {
+    font-weight: 600;
+    color: var(--text_heading);
+    margin-bottom: 8px;
+}
+
+.user-info-container .form-control {
+    background-color: #f8f8f8;
+    border: 1px solid #e9e9e9;
+    padding: 12px;
+    margin-bottom: 15px;
+}
+
+.user-info-container .form-control:read-only {
+    background-color: #f8f8f8;
+    cursor: not-allowed;
+}
+
+.user-info-container .form-control:not(:read-only) {
+    background-color: #ffffff;
+    border-color: var(--secondary);
+}
+
+#edit-profile-btn {
+    background-color: var(--secondary);
+    border: none;
+}
+
+#edit-profile-btn:hover {
+    background-color: #ffcb47;
+}
+
+#save-profile-btn {
+    margin-right: 10px;
+}

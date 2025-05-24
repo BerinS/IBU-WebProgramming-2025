@@ -33,7 +33,7 @@ function isLoggedIn() {
 // Login function
 async function login(email, password) {
     try {
-        const response = await fetch('http://localhost/IBU-WebProgramming-2025/auth/login', {
+        const response = await fetch('http://localhost/IBU-WebProgramming-2025/backend/index.php/auth/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -57,7 +57,7 @@ async function login(email, password) {
 // Register function
 async function register(email, password) {
     try {
-        const response = await fetch('http://localhost/IBU-WebProgramming-2025/auth/register', {
+        const response = await fetch('http://localhost/IBU-WebProgramming-2025/backend/index.php/auth/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -80,5 +80,7 @@ async function register(email, password) {
 // Logout function
 function logout() {
     clearAuthData();
-    window.location.href = '#page1';
+    if (window.location.hash !== '#page1') {
+        window.location.hash = 'page1';
+    }
 } 
