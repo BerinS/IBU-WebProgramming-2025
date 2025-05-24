@@ -1,6 +1,6 @@
 if (typeof window.Constants === 'undefined') {
     window.Constants = {
-        PROJECT_BASE_URL: "http://localhost/IBU-WebProgramming-2025/backend/index.php/",
+        PROJECT_BASE_URL: "http://localhost/IBU-WebProgramming-2025/backend/",
         
         // User Roles
         ROLES: {

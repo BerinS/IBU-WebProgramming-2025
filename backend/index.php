@@ -22,7 +22,8 @@ $required_files = [
     __DIR__ . '/services/BaseService.php',
     __DIR__ . '/services/AuthService.php',
     __DIR__ . '/services/ProductsService.php',
-    __DIR__ . '/data/roles.php'
+    __DIR__ . '/data/roles.php',
+    __DIR__ . '/middleware/AuthMiddleware.php'
 ];
 
 foreach ($required_files as $file) {
@@ -39,11 +40,16 @@ foreach ($required_files as $file) {
 try {
     Flight::register('auth_service', 'AuthService');
     Flight::register('productsService', 'ProductsService');
+    Flight::register('auth_middleware', 'JWTMiddleware');
     error_log("Services registered successfully");
 } catch (Exception $e) {
     error_log("Error registering services: " . $e->getMessage());
     error_log("Stack trace: " . $e->getTraceAsString());
 }
+
+// Initialize JWT middleware
+$jwt_middleware = new JWTMiddleware();
+Flight::before('start', array($jwt_middleware, 'handle'));
 
 // Include routes after service registration
 require_once __DIR__ . '/routes/AuthRoutes.php';
@@ -76,6 +82,39 @@ Flight::route('GET /test-users-table', function() {
         $stmt = $db->query("DESCRIBE users");
         $columns = $stmt->fetchAll(PDO::FETCH_ASSOC);
         Flight::json(['status' => 'success', 'columns' => $columns]);
+    } catch (Exception $e) {
+        Flight::json(['status' => 'error', 'message' => $e->getMessage()], 500);
+    }
+});
+
+// Add a route to check products table structure
+Flight::route('GET /test-products-table', function() {
+    try {
+        $db = Database::connect();
+        $stmt = $db->query("SHOW CREATE TABLE products");
+        $tableInfo = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Also get foreign key constraints
+        $stmt2 = $db->query("
+            SELECT 
+                TABLE_NAME,
+                COLUMN_NAME,
+                CONSTRAINT_NAME,
+                REFERENCED_TABLE_NAME,
+                REFERENCED_COLUMN_NAME
+            FROM
+                information_schema.KEY_COLUMN_USAGE
+            WHERE
+                REFERENCED_TABLE_NAME = 'products'
+                OR TABLE_NAME = 'products'
+        ");
+        $constraints = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+        
+        Flight::json([
+            'status' => 'success', 
+            'table_info' => $tableInfo,
+            'constraints' => $constraints
+        ]);
     } catch (Exception $e) {
         Flight::json(['status' => 'error', 'message' => $e->getMessage()], 500);
     }

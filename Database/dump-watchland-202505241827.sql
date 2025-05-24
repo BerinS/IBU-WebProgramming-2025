@@ -28,8 +28,9 @@ CREATE TABLE `cart` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  CONSTRAINT `cart_users_FK` FOREIGN KEY (`id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  KEY `cart_users_FK` (`user_id`),
+  CONSTRAINT `cart_users_FK` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -38,6 +39,7 @@ CREATE TABLE `cart` (
 
 LOCK TABLES `cart` WRITE;
 /*!40000 ALTER TABLE `cart` DISABLE KEYS */;
+INSERT INTO `cart` VALUES (1,1,'2025-05-04 10:00:29',NULL),(2,2,'2025-05-04 10:16:21',NULL);
 /*!40000 ALTER TABLE `cart` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -54,9 +56,11 @@ CREATE TABLE `cart_items` (
   `product_id` int DEFAULT NULL,
   `quantity` int DEFAULT NULL,
   PRIMARY KEY (`id`),
-  CONSTRAINT `cart_items_cart_FK` FOREIGN KEY (`id`) REFERENCES `cart` (`id`),
-  CONSTRAINT `cart_items_products_FK` FOREIGN KEY (`id`) REFERENCES `products` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  KEY `cart_items_cart_FK` (`cart_id`),
+  KEY `cart_items_products_FK` (`product_id`),
+  CONSTRAINT `cart_items_cart_FK` FOREIGN KEY (`cart_id`) REFERENCES `cart` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `cart_items_products_FK` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -65,6 +69,7 @@ CREATE TABLE `cart_items` (
 
 LOCK TABLES `cart_items` WRITE;
 /*!40000 ALTER TABLE `cart_items` DISABLE KEYS */;
+INSERT INTO `cart_items` VALUES (2,1,12,1);
 /*!40000 ALTER TABLE `cart_items` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -108,8 +113,10 @@ CREATE TABLE `order_items` (
   `quantity` int DEFAULT NULL,
   `price_at_purchase` decimal(10,2) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  CONSTRAINT `order_items_orders_FK` FOREIGN KEY (`id`) REFERENCES `orders` (`id`),
-  CONSTRAINT `order_items_products_FK` FOREIGN KEY (`id`) REFERENCES `products` (`id`)
+  KEY `order_items_orders_FK` (`order_id`),
+  KEY `order_items_products_FK` (`product_id`),
+  CONSTRAINT `order_items_orders_FK` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `order_items_products_FK` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -137,7 +144,8 @@ CREATE TABLE `orders` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  CONSTRAINT `orders_users_FK` FOREIGN KEY (`id`) REFERENCES `users` (`id`)
+  KEY `orders_users_FK` (`user_id`),
+  CONSTRAINT `orders_users_FK` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -167,8 +175,10 @@ CREATE TABLE `payments` (
   `transaction_id` varchar(100) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  CONSTRAINT `payments_orders_FK` FOREIGN KEY (`id`) REFERENCES `orders` (`id`),
-  CONSTRAINT `payments_users_FK` FOREIGN KEY (`id`) REFERENCES `users` (`id`)
+  KEY `payments_orders_FK` (`order_id`),
+  KEY `payments_users_FK` (`user_id`),
+  CONSTRAINT `payments_orders_FK` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `payments_users_FK` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -198,10 +208,11 @@ CREATE TABLE `products` (
   `image_url` varchar(300) DEFAULT NULL,
   `category_id` int DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
+  `gender` enum('male','female','unisex') DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `products_categories_fk` (`category_id`),
   CONSTRAINT `products_categories_fk` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -210,7 +221,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES (11,'Tissot PRX Powermatic 80','Tissot',795.00,15,'The Tissot PRX Powermatic 80 features an integrated bracelet, 40mm stainless steel case, and the Powermatic 80 automatic movement with 80-hour power reserve.','https://assets.tissotwatches.com/transform/Extend/63f42767-a9f5-4cdd-b952-8ea7b82b7e0c/T137-407-11-041-00_shadow?io=transform:fill,width:800,height:800,gravity:center',1,'2025-04-03 09:27:20'),(12,'Seiko Presage Automatic','Seiko',475.00,8,'Japanese automatic movement with 41-hour power reserve. Features a stunning sunburst blue dial, \r\n    power reserve indicator, and exhibition case back. 40.5mm stainless steel case.','https://example.com/seiko-presage-srpb41.jpg',1,'2025-04-03 09:27:45');
+INSERT INTO `products` VALUES (11,'Tissot PRX Powermatic 80','Tissot',795.00,15,'The Tissot PRX Powermatic 80 features an integrated bracelet, 40mm stainless steel case, and the Powermatic 80 automatic movement with 80-hour power reserve.','https://assets.tissotwatches.com/transform/Extend/63f42767-a9f5-4cdd-b952-8ea7b82b7e0c/T137-407-11-041-00_shadow?io=transform:fill,width:800,height:800,gravity:center',1,'2025-04-03 09:27:20','unisex'),(12,'Seiko Presage Automatic','Seiko',475.00,8,'Japanese automatic movement with 41-hour power reserve. Features a stunning sunburst blue dial, \r\n    power reserve indicator, and exhibition case back. 40.5mm stainless steel case.','https://www.seikowatches.com/us-en/-/media/Images/Product--Image/All/Seiko/2022/02/20/01/55/SRPB41J1/SRPB41J1.png?mh=1200&mw=1200',1,'2025-04-03 09:27:45','unisex');
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -230,7 +241,7 @@ CREATE TABLE `users` (
   `role` enum('customer','employee','admin') NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -239,7 +250,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'Mark','Grant','mark.grant@gmail.com','a123*a','customer','2025-04-03 09:12:03'),(2,'Lance','Davidson','lance.davidson@gmail.com','b1*3ua','employee','2025-04-03 09:31:18');
+INSERT INTO `users` VALUES (1,'Mark','Grant','mark.grant@gmail.com','a123*a','customer','2025-04-03 09:12:03'),(2,'Lance','Davidson','lance.davidson@gmail.com','b1*3ua','employee','2025-04-03 09:31:18'),(3,'John','Mayer','test_mail@gmail.com','$2y$10$ZS39Qx8wWMLxnGDlw8SBHuMEzf3HMG7Frhvr0Y3vIBihQ4ejIwIHa','customer','2025-05-22 21:15:03'),(4,'David','Doe','test_mail2@gmail.com','$2y$10$IQMX/t0WrDGeU6y5L2tQfO.5ONmk4F9IMlFBft9zhBNv3e2GSd2zG','customer','2025-05-22 21:16:42'),(5,'Peter','Parker','parker@gmail.com','$2y$10$Kpsy1vaXViYAvy2bqMVvXOEHSs/StAv0kTXiVXyukec2CX01Yv8sS','customer','2025-05-23 14:13:53'),(6,'Jim','Carson','carson@gmail.com','$2y$10$Ef3TI1kdcAFbNIe1YJs7S.R95d9D..sHr133VOClaG5NhuFQnc4Ba','customer','2025-05-23 14:23:26'),(7,'Admin','User','admin@watchland.com','$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi','admin','2025-05-24 11:14:29');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -256,4 +267,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-03 11:41:43
+-- Dump completed on 2025-05-24 18:27:25

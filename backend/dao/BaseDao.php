@@ -97,11 +97,75 @@ class BaseDao {
 
     public function delete($id) {
         try {
-            $stmt = $this->connection->prepare("DELETE FROM " . $this->table . " WHERE id = :id");
-            $stmt->bindParam(':id', $id);
-            return $stmt->execute();
+            error_log("[BaseDao] Starting delete operation for table {$this->table}, ID: " . $id);
+            
+            // First check if the record exists
+            error_log("[BaseDao] Checking if record exists");
+            $check = $this->get_by_id($id);
+            if (!$check) {
+                error_log("[BaseDao] Record not found in table {$this->table} with ID: " . $id);
+                return false;
+            }
+            error_log("[BaseDao] Found record to delete: " . json_encode($check));
+
+            // Set error mode to throw exceptions
+            error_log("[BaseDao] Setting PDO error mode");
+            $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            
+            // Enable query logging
+            error_log("[BaseDao] Enabling query logging");
+            $this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+            
+            // Prepare and execute the delete statement
+            $sql = "DELETE FROM {$this->table} WHERE id = :id";
+            error_log("[BaseDao] Preparing SQL: " . $sql);
+            
+            $stmt = $this->connection->prepare($sql);
+            if (!$stmt) {
+                $error = $this->connection->errorInfo();
+                error_log("[BaseDao] Prepare statement failed: " . json_encode($error));
+                return false;
+            }
+            
+            error_log("[BaseDao] Binding parameter id = " . $id);
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+            
+            // Execute and get result
+            error_log("[BaseDao] Executing delete statement");
+            $result = $stmt->execute();
+            $rowCount = $stmt->rowCount();
+            
+            error_log("[BaseDao] Delete execution result: " . ($result ? "success" : "failed"));
+            error_log("[BaseDao] Rows affected: " . $rowCount);
+            
+            // Get any SQL errors
+            $errorInfo = $stmt->errorInfo();
+            error_log("[BaseDao] Statement error info: " . json_encode($errorInfo));
+            
+            if ($errorInfo[0] !== '00000') {
+                error_log("[BaseDao] SQL Error: " . json_encode($errorInfo));
+                throw new PDOException("Delete failed: " . $errorInfo[2]);
+            }
+            
+            // Verify deletion
+            error_log("[BaseDao] Verifying deletion");
+            $checkAfter = $this->get_by_id($id);
+            if ($checkAfter) {
+                error_log("[BaseDao] Record still exists after deletion attempt!");
+                return false;
+            }
+            
+            error_log("[BaseDao] Delete operation completed successfully");
+            return $rowCount > 0;
+            
         } catch (PDOException $e) {
-            error_log("Error in delete for table {$this->table}: " . $e->getMessage());
+            error_log("[BaseDao] PDO Exception in delete: " . $e->getMessage());
+            error_log("[BaseDao] SQL State: " . $e->getCode());
+            error_log("[BaseDao] Stack trace: " . $e->getTraceAsString());
+            throw $e;
+        } catch (Exception $e) {
+            error_log("[BaseDao] General error in delete: " . $e->getMessage());
+            error_log("[BaseDao] Stack trace: " . $e->getTraceAsString());
             throw $e;
         }
     }

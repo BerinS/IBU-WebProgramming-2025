@@ -322,15 +322,70 @@ Flight::route('PUT /products/@id', function($id) {
  * )
  */
 Flight::route('DELETE /products/@id', function($id) {
-    // Only admin can delete products
-    Flight::auth_middleware()->authorizeRole(Roles::ADMIN);
-    // Alternatively:
-    // Flight::auth_middleware()->authorizePermission('delete_product');
+    try {
+        error_log("[ProductsRoute] Starting delete request for product ID: " . $id);
+        
+        // Only admin can delete products
+        if (!Flight::auth_middleware()->authorizeRole(Roles::ADMIN)) {
+            error_log("[ProductsRoute] Authorization failed");
+            return; // The middleware has already sent the response
+        }
+        error_log("[ProductsRoute] Authorization successful");
 
-    $result = Flight::productsService()->delete($id);
-    if ($result) {
-        Flight::json(['message' => 'Product deleted successfully']);
-    } else {
-        Flight::json(['error' => 'Product not found'], 404);
+        // Check if product exists first
+        $product = Flight::productsService()->get_by_id($id);
+        if (!$product) {
+            error_log("[ProductsRoute] Product not found");
+            header('Content-Type: application/json');
+            Flight::json(['success' => false, 'message' => 'Product not found'], 404);
+            return;
+        }
+        error_log("[ProductsRoute] Found product to delete: " . json_encode($product));
+
+        // Start transaction
+        $db = Database::connect();
+        $db->beginTransaction();
+        error_log("[ProductsRoute] Transaction started");
+        
+        try {
+            // Attempt to delete
+            $result = Flight::productsService()->delete($id);
+            error_log("[ProductsRoute] Delete operation result: " . ($result ? "success" : "failed"));
+
+            if ($result) {
+                $db->commit();
+                error_log("[ProductsRoute] Transaction committed");
+                
+                // Double check the deletion
+                $checkProduct = Flight::productsService()->get_by_id($id);
+                if ($checkProduct) {
+                    error_log("[ProductsRoute] Product still exists after deletion!");
+                    $db->rollBack();
+                    header('Content-Type: application/json');
+                    Flight::json(['success' => false, 'message' => 'Failed to delete product (still exists)'], 500);
+                    return;
+                }
+                
+                header('Content-Type: application/json');
+                Flight::json(['success' => true, 'message' => 'Product deleted successfully']);
+                return;
+            } else {
+                $db->rollBack();
+                error_log("[ProductsRoute] Delete operation returned false - rolling back transaction");
+                header('Content-Type: application/json');
+                Flight::json(['success' => false, 'message' => 'Failed to delete product'], 500);
+                return;
+            }
+        } catch (Exception $e) {
+            $db->rollBack();
+            error_log("[ProductsRoute] Exception during delete - rolling back transaction: " . $e->getMessage());
+            throw $e;
+        }
+    } catch (Exception $e) {
+        error_log("[ProductsRoute] Error deleting product: " . $e->getMessage());
+        error_log("[ProductsRoute] Stack trace: " . $e->getTraceAsString());
+        header('Content-Type: application/json');
+        Flight::json(['success' => false, 'message' => 'Error deleting product: ' . $e->getMessage()], 500);
+        return;
     }
 });
