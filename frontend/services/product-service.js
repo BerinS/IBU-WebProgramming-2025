@@ -97,8 +97,78 @@ var ProductService = window.ProductService || {
     },
 
     editProduct: function(productId) {
-        // TODO: Implement edit functionality
-        console.log('Edit product:', productId);
+        console.log('Starting editProduct with ID:', productId);
+        
+        // Check if RestClient is available
+        if (typeof RestClient === 'undefined') {
+            console.error('RestClient is not loaded');
+            return;
+        }
+        
+        // Check if Constants.API.PRODUCTS is defined
+        if (!Constants.API || !Constants.API.PRODUCTS) {
+            console.error('Constants.API.PRODUCTS is not properly initialized');
+            return;
+        }
+        
+        const endpoint = Constants.API.PRODUCTS + '/' + productId;
+        console.log('Making GET request to endpoint:', endpoint);
+        
+        RestClient.get(endpoint, null,
+            function(response) {
+                console.log('Received product data:', response);
+                
+                // Update modal title
+                $('#productModalLabel').text('Edit Product');
+                console.log('Updated modal title');
+                
+                // Store the product ID for the update operation
+                $('#add-product-form').data('product-id', productId);
+                console.log('Stored product ID in form data');
+                
+                // Update submit button text
+                $('.auth-button').text('Update Product');
+                
+                // Populate form fields
+                $('#product-name').val(response.name);
+                $('#product-brand').val(response.brand);
+                $('#product-stock').val(response.stock_quantity);
+                $('#product-price').val(response.price);
+                $('#product-description').val(response.description);
+                $('#product-image').val(response.image_url);
+                $('#product-gender').val(response.gender);
+                console.log('Populated all form fields');
+                
+                // Load categories and set the selected one
+                console.log('Starting to load categories');
+                ProductService.loadCategories(function(categories) {
+                    console.log('Categories loaded for edit:', categories);
+                    const select = $('#product-category');
+                    select.empty();
+                    categories.forEach(category => {
+                        select.append(`<option value="${category.id}">${category.name}</option>`);
+                    });
+                    select.val(response.category_id);
+                    console.log('Set category to:', response.category_id);
+                });
+                
+                // Show the modal
+                console.log('Attempting to show modal');
+                const modal = $('#productModal');
+                if (modal.length) {
+                    modal.modal('show');
+                    console.log('Modal show called');
+                } else {
+                    console.error('Modal element not found');
+                }
+            },
+            function(error) {
+                console.error('Error in GET request:', error);
+                console.error('Error status:', error.status);
+                console.error('Error response:', error.responseText);
+                Utils.showError('Failed to load product details');
+            }
+        );
     },
 
     deleteProduct: function(productId) {
@@ -157,6 +227,28 @@ var ProductService = window.ProductService || {
                     .text(errorMessage)
                     .show();
                 console.error('Error adding product:', error);
+            }
+        );
+    },
+
+    updateProduct: function(productId, productData) {
+        RestClient.put(Constants.API.PRODUCTS + '/' + productId, productData,
+            function(response) {
+                Utils.showSuccess('Product updated successfully');
+                $('#productModal').modal('hide');
+                ProductService.loadProducts(); // Reload the list
+                $('#add-product-form')[0].reset();
+                // Reset modal to add mode
+                $('#productModalLabel').text('Add New Product');
+                $('.auth-button').text('Add Product');
+                $('#add-product-form').removeData('product-id');
+            },
+            function(error) {
+                const errorMessage = error.responseJSON?.error || 'Failed to update product';
+                $('#add-product-error')
+                    .text(errorMessage)
+                    .show();
+                console.error('Error updating product:', error);
             }
         );
     }

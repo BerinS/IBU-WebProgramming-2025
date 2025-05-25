@@ -127,21 +127,13 @@ $(document).ready(function() {
         });
     });
 
-    // Handle form submission
-    $('#add-product-form').on('submit', function(e) {
-        e.preventDefault();
-        
-        const formData = {};
-        $(this).serializeArray().forEach(item => {
-            formData[item.name] = item.value;
-        });
-
-        // Convert numeric fields
-        formData.price = parseFloat(formData.price);
-        formData.stock_quantity = parseInt(formData.stock_quantity);
-        formData.category_id = parseInt(formData.category_id);
-
-        ProductService.addProduct(formData);
+    // Reset form when modal is hidden
+    $('#productModal').on('hidden.bs.modal', function() {
+        $('#add-product-form')[0].reset();
+        $('#add-product-form').removeData('product-id');
+        $('#productModalLabel').text('Add New Product');
+        $('.auth-button').text('Add Product');
+        $('#add-product-error').hide();
     });
 
     // Add form validation
@@ -226,7 +218,14 @@ $(document).ready(function() {
             formData.stock_quantity = parseInt(formData.stock_quantity);
             formData.category_id = parseInt(formData.category_id);
 
-            ProductService.addProduct(formData);
+            const productId = $(form).data('product-id');
+            if (productId) {
+                // Update existing product
+                ProductService.updateProduct(productId, formData);
+            } else {
+                // Add new product
+                ProductService.addProduct(formData);
+            }
         }
     });
 });

@@ -212,7 +212,7 @@ Flight::route('POST /products', function() {
  * )
  */
 Flight::route('GET /products/@id', function($id) {
-    $product = Flight::productsService()->getById($id);
+    $product = Flight::productsService()->get_by_id($id);
     if ($product) {
         Flight::json($product);
     } else {
