@@ -1,6 +1,7 @@
-var ProductService = {
+// Prevent redeclaration by checking if ProductService already exists
+var ProductService = window.ProductService || {
     init: function() {
-        if (typeof RestClient === 'undefined' || typeof Utils === 'undefined') {
+        if (typeof RestClient === 'undefined' || typeof Utils === 'undefined' || typeof Constants === 'undefined') {
             console.error('Required dependencies not loaded');
             return;
         }
@@ -113,6 +114,51 @@ var ProductService = {
                 }
             );
         }
+    },
+
+    // New methods for adding products
+    loadCategories: function(callback) {
+        // Check if Constants is loaded
+        if (typeof Constants === 'undefined' || !Constants.API || !Constants.API.CATEGORIES) {
+            console.error('Constants not properly loaded');
+            Utils.showError("System configuration error");
+            return;
+        }
+
+        RestClient.get(Constants.API.CATEGORIES, null,
+            function(response) {
+                if (Array.isArray(response)) {
+                    callback(response);
+                } else if (response && response.data) {
+                    callback(response.data);
+                } else {
+                    console.error('Invalid categories response format:', response);
+                    Utils.showError("Invalid categories response format from server");
+                }
+            },
+            function(error) {
+                Utils.showError("Failed to load categories");
+                console.error('Error loading categories:', error);
+            }
+        );
+    },
+
+    addProduct: function(productData) {
+        RestClient.post(Constants.API.PRODUCTS, productData,
+            function(response) {
+                Utils.showSuccess('Product added successfully');
+                $('#productModal').modal('hide');
+                ProductService.loadProducts(); // Reload the list
+                $('#add-product-form')[0].reset();
+            },
+            function(error) {
+                const errorMessage = error.responseJSON?.error || 'Failed to add product';
+                $('#add-product-error')
+                    .text(errorMessage)
+                    .show();
+                console.error('Error adding product:', error);
+            }
+        );
     }
 };
 

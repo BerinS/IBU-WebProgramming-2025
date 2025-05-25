@@ -17,7 +17,8 @@ if (typeof window.Constants === 'undefined') {
             CART: "cart",
             ORDERS: "orders",
             USER_PROFILE: "user/profile",
-            USERS: "user/all"
+            USERS: "user/all",
+            CATEGORIES: "categories"
         },
 
         // Local Storage Keys

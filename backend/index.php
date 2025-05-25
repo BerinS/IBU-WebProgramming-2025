@@ -22,6 +22,7 @@ $required_files = [
     __DIR__ . '/services/BaseService.php',
     __DIR__ . '/services/AuthService.php',
     __DIR__ . '/services/ProductsService.php',
+    __DIR__ . '/services/CategoriesService.php',
     __DIR__ . '/data/roles.php',
     __DIR__ . '/middleware/AuthMiddleware.php'
 ];
@@ -40,6 +41,7 @@ foreach ($required_files as $file) {
 try {
     Flight::register('auth_service', 'AuthService');
     Flight::register('productsService', 'ProductsService');
+    Flight::register('categoriesService', 'CategoriesService');
     Flight::register('auth_middleware', 'JWTMiddleware');
     error_log("Services registered successfully");
 } catch (Exception $e) {
@@ -57,6 +59,7 @@ require_once __DIR__ . '/routes/ProductsRoutes.php';
 require_once __DIR__ . '/routes/CartRoutes.php';
 require_once __DIR__ . '/routes/OrdersRoutes.php';
 require_once __DIR__ . '/routes/UserRoutes.php';
+require_once __DIR__ . '/routes/CategoriesRoutes.php';
 
 // Add a test route
 Flight::route('GET /test', function() {
