@@ -1,30 +1,57 @@
 <?php
-class Database {
-  private static $host = 'localhost';
-  private static $dbName = 'watchland';
-  private static $dbPort = 3306;
-  private static $username = 'root';
-  private static $password = 'Berin1235';
-  private static $connection = null;
+// JWT Secret Key Definition
+class JWTConfig {
+    
+    public static function DB_NAME()
+    {
+        return 'watchland'; 
+    }
+    public static function DB_PORT()
+    {
+        return 3306;
+    }
+    public static function DB_USER()
+    {
+        return 'root';
+    }
+    public static function DB_PASSWORD()
+    {
+        return 'Berin1235';
+    }
+    public static function DB_HOST()
+    {
+        return 'localhost';
+    }
+ 
+    public static function JWT_SECRET() {
+        return 'secret_key';
+    }
+ 
+}
 
-  public static function connect() {
-      if (self::$connection === null) {
-          try {
-              self::$connection = new PDO(
-                  "mysql:host=" . self::$host . ";dbname=" . self::$dbName . ";port=" . self::$dbPort,
-                  self::$username,
-                  self::$password,
-                  [
-                      PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                      PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-                  ]
-              );
-          } catch (PDOException $e) {
-              throw new Exception("Database connection failed: " . $e->getMessage());
-          }
-      }
-      return self::$connection;
-  }
+class Database {
+    private static $connection = null;
+
+    public static function connect() {
+        if (self::$connection === null) {
+            try {
+                self::$connection = new PDO(
+                    "mysql:host=" . JWTConfig::DB_HOST() . 
+                    ";dbname=" . JWTConfig::DB_NAME() . 
+                    ";port=" . JWTConfig::DB_PORT(),
+                    JWTConfig::DB_USER(),
+                    JWTConfig::DB_PASSWORD(),
+                    [
+                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+                    ]
+                );
+            } catch (PDOException $e) {
+                throw new Exception("Database connection failed: " . $e->getMessage());
+            }
+        }
+        return self::$connection;
+    }
 }
 ?>
 

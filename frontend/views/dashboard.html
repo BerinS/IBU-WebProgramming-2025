@@ -1,0 +1,232 @@
+<div class="container dashboard_container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1><b>Dashboard</b></h1>
+            <hr>
+        </div>
+        <div class="element_container">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3>Products</h3>
+                <button class="btn btn-primary" id="add-product-btn">
+                    <i class="bi bi-plus-circle"></i> Add Product
+                </button>
+            </div>            
+
+            <!-- Products list -->
+            <div class="list-group" id="products-list">
+                <!-- Products will be loaded here dynamically -->
+                <div class="text-center py-3" id="loading-products">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Product Modal -->
+<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="productModalLabel">Add New Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="add-product-form" class="auth-form">
+                    
+                    <label for="product-name" class="auth-label">Product Name</label>
+                    <input type="text" id="product-name" name="name" class="auth-input" required>
+                    
+                    <label for="product-brand" class="auth-label">Brand</label>
+                    <input type="text" id="product-brand" name="brand" class="auth-input" required>
+                    
+                    <div class="row">
+                        <div class="col">
+                            <label for="product-stock" class="auth-label">Stock Quantity</label>
+                        </div>
+                        <div class="col">
+                            <input type="number" id="product-stock" name="stock_quantity" min="0" class="auth-input" required>                            
+                        </div>
+                      </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <label for="product-price" class="auth-label">Price ($)</label>
+                        </div>
+                        <div class="col">
+                            <input type="number" id="product-price" name="price" step="0.01" min="0" class="auth-input" required>
+                        </div>
+                      </div>
+                    
+                    
+                    <label for="product-description" class="auth-label">Description</label>
+                    <textarea id="product-description" name="description" class="auth-input" rows="3" required></textarea>
+                    
+                    <label for="product-image" class="auth-label">Image URL</label>
+                    <input type="url" id="product-image" name="image_url" class="auth-input" required>
+                    
+                    <label for="product-category" class="auth-label">Category</label>
+                    <select id="product-category" name="category_id" class="auth-input" required>
+                        <!-- Categories will be loaded dynamically -->
+                    </select>
+                    
+                    <label for="product-gender" class="auth-label">Gender</label>
+                    <select id="product-gender" name="gender" class="auth-input" required>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="unisex">Unisex</option>
+                    </select>
+                    
+                    <div class="auth-error" id="add-product-error" style="display: none; color: red; margin-bottom: 10px;"></div>
+                    <button type="submit" class="auth-button">Add Product</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    console.log('Dashboard view loaded');
+    
+    // Ensure all required dependencies are loaded
+    if (typeof RestClient === 'undefined' || typeof Utils === 'undefined' || 
+        typeof Constants === 'undefined' || typeof ProductService === 'undefined') {
+        console.error('Required dependencies not loaded');
+        return;
+    }
+
+    // Ensure Constants.API is properly initialized
+    if (!Constants.API || !Constants.API.CATEGORIES) {
+        console.error('Constants.API not properly initialized');
+        return;
+    }
+
+    // Initialize ProductService
+    console.log('Initializing ProductService');
+    ProductService.init();
+    ProductService.loadProducts();
+
+    // Add product button handler
+    $('#add-product-btn').click(function() {
+        $('#productModal').modal('show');
+    });
+
+    // Load categories when modal is shown
+    $('#productModal').on('show.bs.modal', function() {
+        console.log('Loading categories...');
+        ProductService.loadCategories(function(categories) {
+            console.log('Categories loaded:', categories);
+            const select = $('#product-category');
+            select.empty();
+            categories.forEach(category => {
+                select.append(`<option value="${category.id}">${category.name}</option>`);
+            });
+        });
+    });
+
+    // Reset form when modal is hidden
+    $('#productModal').on('hidden.bs.modal', function() {
+        $('#add-product-form')[0].reset();
+        $('#add-product-form').removeData('product-id');
+        $('#productModalLabel').text('Add New Product');
+        $('.auth-button').text('Add Product');
+        $('#add-product-error').hide();
+    });
+
+    // Add form validation
+    $("#add-product-form").validate({
+        rules: {
+            name: {
+                required: true,
+                minlength: 2
+            },
+            brand: {
+                required: true,
+                minlength: 2
+            },
+            price: {
+                required: true,
+                number: true,
+                min: 0
+            },
+            stock_quantity: {
+                required: true,
+                digits: true,
+                min: 0
+            },
+            description: {
+                required: true,
+                minlength: 10
+            },
+            image_url: {
+                required: true,
+                url: true
+            },
+            category_id: {
+                required: true
+            },
+            gender: {
+                required: true
+            }
+        },
+        messages: {
+            name: {
+                required: "Please enter the product name",
+                minlength: "Name must be at least 2 characters long"
+            },
+            brand: {
+                required: "Please enter the brand name",
+                minlength: "Brand must be at least 2 characters long"
+            },
+            price: {
+                required: "Please enter the price",
+                number: "Please enter a valid price",
+                min: "Price must be greater than 0"
+            },
+            stock_quantity: {
+                required: "Please enter the stock quantity",
+                digits: "Please enter a valid number",
+                min: "Stock quantity must be 0 or greater"
+            },
+            description: {
+                required: "Please enter a description",
+                minlength: "Description must be at least 10 characters long"
+            },
+            image_url: {
+                required: "Please enter an image URL",
+                url: "Please enter a valid URL"
+            },
+            category_id: "Please select a category",
+            gender: "Please select a gender"
+        },
+        errorElement: 'div',
+        errorPlacement: function(error, element) {
+            error.addClass('auth-error');
+            error.insertAfter(element);
+        },
+        submitHandler: function(form) {
+            const formData = {};
+            $(form).serializeArray().forEach(item => {
+                formData[item.name] = item.value;
+            });
+
+            // Convert numeric fields
+            formData.price = parseFloat(formData.price);
+            formData.stock_quantity = parseInt(formData.stock_quantity);
+            formData.category_id = parseInt(formData.category_id);
+
+            const productId = $(form).data('product-id');
+            if (productId) {
+                // Update existing product
+                ProductService.updateProduct(productId, formData);
+            } else {
+                // Add new product
+                ProductService.addProduct(formData);
+            }
+        }
+    });
+});
+</script>

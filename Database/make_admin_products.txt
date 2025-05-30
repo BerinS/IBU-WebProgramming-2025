@@ -1,0 +1,96 @@
+INSERT INTO users (
+    first_name,
+    last_name,
+    email,
+    password_hash,
+    role,
+    created_at
+) VALUES (
+    'Admin2',
+    'User2',
+    'admin2@watchland.com',
+    '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', -- This is the hash for 'password'
+    'admin',
+    NOW()
+);
+
+INSERT INTO products (
+    name, 
+    brand, 
+    price, 
+    stock_quantity, 
+    description, 
+    image_url, 
+    category_id, 
+    created_at
+) VALUES (
+    'Seiko Presage Automatic', 
+    'Seiko', 
+    475.00, 
+    8, 
+    'Japanese automatic movement with 41-hour power reserve. Features a stunning sunburst blue dial, 
+    power reserve indicator, and exhibition case back. 40.5mm stainless steel case.',
+    'https://www.seikowatches.com/us-en/-/media/Images/Product--Image/All/Seiko/2022/02/20/01/55/SRPB41J1/SRPB41J1.png?mh=1200&mw=1200',
+    (SELECT id FROM categories WHERE name = 'automatic'), 
+    CURRENT_TIMESTAMP()
+);
+
+INSERT INTO products (
+    name, 
+    brand, 
+    price, 
+    stock_quantity, 
+    description, 
+    image_url, 
+    category_id, 
+    created_at
+) VALUES (
+    'Casio G-Shock GA2100-1A1', 
+    'Casio', 
+    99.00, 
+    25, 
+    'Ultra-durable analog-digital G-Shock with carbon core guard structure. Features 200m water resistance, world time, stopwatch, and 3-year battery life.',
+    'https://www.casio.com/content/dam/casio/product-info/locales/us/en/timepiece/product/watch/G/GA/GA2/GA-2100-1A1/us-assets/GA-2100-1A1.png',
+    (SELECT id FROM categories WHERE name = 'digital'), 
+    CURRENT_TIMESTAMP()
+);
+
+INSERT INTO products (
+    name, 
+    brand, 
+    price, 
+    stock_quantity, 
+    description, 
+    image_url, 
+    category_id, 
+    created_at
+) VALUES (
+    'Omega Seamaster Diver 300M', 
+    'Omega', 
+    5200.00, 
+    5, 
+    'Iconic Swiss diver’s watch with Co-Axial Master Chronometer movement. 42mm stainless steel case, ceramic bezel, and wave-pattern dial. Water-resistant to 300 meters.',
+    'https://www.omegawatches.com/media/catalog/product/o/m/omega-seamaster-diver-300m-co-axial-master-chronometer-42-mm-21030422003001-5c4934.png?w=2000',
+    (SELECT id FROM categories WHERE name = 'diver'), 
+    CURRENT_TIMESTAMP()
+);
+
+INSERT INTO products (
+    name, 
+    brand, 
+    price, 
+    stock_quantity, 
+    description, 
+    image_url, 
+    category_id, 
+    created_at
+) VALUES (
+    'Citizen Eco-Drive Chronograph CA0649-14E', 
+    'Citizen', 
+    225.00, 
+    10, 
+    'Eco-Drive powered chronograph with 1/5 second accuracy, 12/24 hour time, and a tachymeter. 44mm stainless steel case with black dial and brown leather strap.',
+    'https://citizenwatch.widen.net/content/8ly4wcjrjh/webp/Brycen.webp?u=41zuoe&width=500&height=625&quality=80&crop=false&keep=c&color=F9F8F6',
+    (SELECT id FROM categories WHERE name = 'chronograph'), 
+    CURRENT_TIMESTAMP()
+);
