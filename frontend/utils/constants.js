@@ -15,6 +15,7 @@ if (typeof window.Constants === 'undefined') {
             REGISTER: "auth/register",
             PRODUCTS: "products",
             CART: "cart",
+            CART_ITEMS: "cart/items",
             ORDERS: "orders",
             USER_PROFILE: "user/profile",
             USERS: "user/all",

@@ -34,7 +34,7 @@
                 <label for="quantity" class="form-label">Quantity:</label>
                 <input type="number" class="form-control" id="quantity" value="1" min="1" style="width: 80px;">
             </div>
-            <button class="btn btn-primary btn-lg mb-3 me-2 cart_button">
+            <button class="btn btn-primary btn-lg mb-3 me-2 cart_button" id="add-to-cart-btn">
                     <i class="bi bi-cart-plus"></i> Add to Cart
                 </button>
             
@@ -96,4 +96,21 @@
           document.querySelectorAll('.thumbnail').forEach(thumb => thumb.classList.remove('active'));
           event.target.classList.add('active');
       }
+
+  // Add to Cart functionality
+  $(document).ready(function() {
+      $('#add-to-cart-btn').on('click', function() {
+          // Get product ID from the page (stored by ProductService when page loads)
+          const productId = $('#quantity').data('product-id');
+          const quantity = parseInt($('#quantity').val()) || 1;
+          
+          if (!productId) {
+              Utils.showError('Product information not available');
+              return;
+          }
+          
+          // Call CartService to add item
+          CartService.addToCart(productId, quantity);
+      });
+  });
 </script>

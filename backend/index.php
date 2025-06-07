@@ -20,10 +20,14 @@ $required_files = [
     __DIR__ . '/dao/BaseDao.php',
     __DIR__ . '/dao/AuthDao.php',
     __DIR__ . '/dao/UserDao.php',
+    __DIR__ . '/dao/CartDao.php',
+    __DIR__ . '/dao/CartItemsDao.php',
     __DIR__ . '/services/BaseService.php',
     __DIR__ . '/services/AuthService.php',
     __DIR__ . '/services/UserService.php',
     __DIR__ . '/services/ProductsService.php',
+    __DIR__ . '/services/CartService.php',
+    __DIR__ . '/services/CartItemsService.php',
     __DIR__ . '/services/CategoriesService.php',
     __DIR__ . '/data/roles.php',
     __DIR__ . '/middleware/AuthMiddleware.php'
@@ -44,6 +48,8 @@ try {
     Flight::register('auth_service', 'AuthService');
     Flight::register('user_service', 'UserService');
     Flight::register('productsService', 'ProductsService');
+    Flight::register('cartService', 'CartService');
+    Flight::register('cartItemsService', 'CartItemsService');
     Flight::register('categoriesService', 'CategoriesService');
     Flight::register('auth_middleware', 'JWTMiddleware');
     error_log("Services registered successfully");

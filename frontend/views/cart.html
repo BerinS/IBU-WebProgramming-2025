@@ -35,53 +35,15 @@
                           <th class="product-remove">Remove</th>
                         </tr>
                       </thead>
-                      <tbody>
-                        <tr>
-                          <td class="product-thumbnail">
-                            <img src="images/tudor.png" alt="Image" class="img-fluid">
-                          </td>
-                          <td class="product-name">
-                            <h2 class="h5 text-black">Tudor</h2>
-                          </td>
-                          <td>$3,500</td>
-                          <td>
-                            <div class="input-group mb-3 d-flex align-items-center quantity-container" style="max-width: 120px;">
-                              <div class="input-group-prepend">
-                                <button class="btn btn-outline-black decrease" type="button">&minus;</button>
-                              </div>
-                              <input type="text" class="form-control text-center quantity-amount" value="1" placeholder="" aria-label="Example text with button addon" aria-describedby="button-addon1">
-                              <div class="input-group-append">
-                                <button class="btn btn-outline-black increase" type="button">&plus;</button>
-                              </div>
+                      <tbody id="cart-items">
+                        <!-- Cart items will be loaded dynamically here -->
+                        <tr id="loading-cart">
+                          <td colspan="6" class="text-center py-5">
+                            <div class="spinner-border" role="status">
+                              <span class="visually-hidden">Loading...</span>
                             </div>
-        
+                            <p class="mt-2">Loading your cart...</p>
                           </td>
-                          <td>$3,500</td>
-                          <td><a href="#" class="btn btn-black btn-sm">X</a></td>
-                        </tr>
-        
-                        <tr>
-                          <td class="product-thumbnail">
-                            <img src="images/product_watches/product_watch_1_tag_heuer.png" alt="Image" class="img-fluid">
-                          </td>
-                          <td class="product-name">
-                            <h2 class="h5 text-black">Tag Heuer</h2>
-                          </td>
-                          <td>$7,600</td>
-                          <td>
-                            <div class="input-group mb-3 d-flex align-items-center quantity-container" style="max-width: 120px;">
-                              <div class="input-group-prepend">
-                                <button class="btn btn-outline-black decrease" type="button">&minus;</button>
-                              </div>
-                              <input type="text" class="form-control text-center quantity-amount" value="1" placeholder="" aria-label="Example text with button addon" aria-describedby="button-addon1">
-                              <div class="input-group-append">
-                                <button class="btn btn-outline-black increase" type="button">&plus;</button>
-                              </div>
-                            </div>
-        
-                          </td>
-                          <td>$7,600</td>
-                          <td><a href="#" class="btn btn-black btn-sm">X</a></td>
                         </tr>
                       </tbody>
                     </table>
@@ -90,15 +52,7 @@
               </div>
         
               <div class="row">
-                <div class="col-md-6">
-                  <div class="row mb-5">
-                    <div class="col-md-6 mb-3 mb-md-0">
-                      <button class="btn btn-black btn-sm btn-block">Update Cart</button>
-                    </div>
-                    <div class="col-md-6">
-                      <button class="btn btn-outline-black btn-sm btn-block">Continue Shopping</button>
-                    </div>
-                  </div>
+                <div class="col-md-6">                 
                   <div class="row">
                     <div class="col-md-12">
                       <label class="text-black h4" for="coupon">Coupon</label>
@@ -125,7 +79,7 @@
                           <span class="text-black">Subtotal</span>
                         </div>
                         <div class="col-md-6 text-right">
-                          <strong class="text-black">$230.00</strong>
+                          <strong class="text-black" id="cart-subtotal">$0.00</strong>
                         </div>
                       </div>
                       <div class="row mb-5">
@@ -133,7 +87,7 @@
                           <span class="text-black">Total</span>
                         </div>
                         <div class="col-md-6 text-right">
-                          <strong class="text-black">$230.00</strong>
+                          <strong class="text-black" id="cart-total">$0.00</strong>
                         </div>
                       </div>
         
@@ -150,6 +104,160 @@
           </div>
 		
 </div>
+
+<script>
+$(document).ready(function() {
+    // Load cart when page loads
+    loadCart();
+    
+    // Auto-reload cart when page becomes visible (when navigating to cart)
+    $(document).on('spapp.pageshow', function(event, data) {
+        if (data && data.route === '#cart') {
+            console.log('Cart page activated, refreshing cart data');
+            loadCart();
+        }
+    });
+    
+    // Fallback: Listen for hash changes to cart
+    $(window).on('hashchange', function() {
+        if (window.location.hash === '#cart') {
+            setTimeout(function() {
+                loadCart();
+            }, 100);
+        }
+    });
+    
+    // Use event delegation for dynamically created elements
+    $(document).on('change', '.quantity-amount', handleQuantityChange);
+    $(document).on('click', '.cart-remove-btn', handleRemoveItem);
+    $(document).on('click', '.increase', handleIncreaseQuantity);
+    $(document).on('click', '.decrease', handleDecreaseQuantity);
+    
+    function loadCart() {
+        CartService.getCart(
+            function(cart) {
+                displayCartItems(cart.items || []);
+                updateCartTotals(cart.items || []);
+            },
+            function(error) {
+                console.error('Error loading cart:', error);
+                showEmptyCart();
+            }
+        );
+    }
+    
+    function displayCartItems(items) {
+        const tbody = $('#cart-items');
+        tbody.empty();
+        
+        if (!items || items.length === 0) {
+            showEmptyCart();
+            return;
+        }
+        
+        items.forEach(function(item) {
+            const row = createCartItemRow(item);
+            tbody.append(row);
+        });
+        
+        // Event handlers are now attached using delegation (see above)
+    }
+    
+    function createCartItemRow(item) {
+        const price = parseFloat(item.price) || 0;
+        const quantity = parseInt(item.quantity) || 1;
+        const total = price * quantity;
+        
+        return `
+            <tr data-item-id="${item.id}">
+                <td class="product-thumbnail">
+                    <img src="${item.image_url || 'images/product_watches/default-watch.png'}" alt="${item.name}" class="img-fluid">
+                </td>
+                <td class="product-name">
+                    <h2 class="h5 text-black">${item.name}</h2>
+                </td>
+                <td>${CartService.formatPrice(price)}</td>
+                <td>
+                    <div class="input-group mb-3 d-flex align-items-center quantity-container" style="max-width: 120px;">
+                        <div class="input-group-prepend">
+                            <button class="btn btn-outline-black decrease" type="button">&minus;</button>
+                        </div>
+                        <input type="text" class="form-control text-center quantity-amount" value="${quantity}" data-item-id="${item.id}">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-black increase" type="button">&plus;</button>
+                        </div>
+                    </div>
+                </td>
+                <td class="item-total">${CartService.formatPrice(total)}</td>
+                <td><button class="btn btn-black btn-sm cart-remove-btn" data-item-id="${item.id}">X</button></td>
+            </tr>
+        `;
+    }
+    
+    function showEmptyCart() {
+        const tbody = $('#cart-items');
+        tbody.html(`
+            <tr>
+                <td colspan="6" class="text-center py-5">
+                    <p>Your cart is empty</p>
+                    <a href="#shop" class="btn btn-primary">Continue Shopping</a>
+                </td>
+            </tr>
+        `);
+        updateCartTotals([]);
+    }
+    
+    function updateCartTotals(items) {
+        const totals = CartService.calculateTotals(items);
+        $('#cart-subtotal').text(CartService.formatPrice(totals.subtotal));
+        $('#cart-total').text(CartService.formatPrice(totals.total));
+    }
+    
+    function handleQuantityChange() {
+        const itemId = $(this).data('item-id');
+        const newQuantity = parseInt($(this).val()) || 1;
+        
+        if (newQuantity < 1) {
+            $(this).val(1);
+            return;
+        }
+        
+        CartService.updateQuantity(itemId, newQuantity, function() {
+            loadCart(); // Reload cart to update totals
+        });
+    }
+    
+    function handleIncreaseQuantity() {
+        const input = $(this).closest('.quantity-container').find('.quantity-amount');
+        const currentValue = parseInt(input.val()) || 1;
+        input.val(currentValue + 1).trigger('change');
+    }
+    
+    function handleDecreaseQuantity() {
+        const input = $(this).closest('.quantity-container').find('.quantity-amount');
+        const currentValue = parseInt(input.val()) || 1;
+        if (currentValue > 1) {
+            input.val(currentValue - 1).trigger('change');
+        }
+    }
+    
+    function handleRemoveItem() {
+        const itemId = $(this).data('item-id');
+        
+        if (!itemId) {
+            Utils.showError('Unable to remove item');
+            return;
+        }
+        
+        // Add confirmation dialog
+        if (confirm('Are you sure you want to remove this item from your cart?')) {
+            CartService.removeItem(itemId, function() {
+                loadCart(); // Reload cart after removal
+            });
+        }
+    }
+});
+</script>
 
 
 		
