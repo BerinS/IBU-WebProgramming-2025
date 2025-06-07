@@ -62,18 +62,13 @@ var ProductService = window.ProductService || {
 
     // SHOP PAGE FUNCTIONALITY
     navigateToShop: function() {
-        console.log('Navigating to shop page');
-        
         // Pre-load shop products via AJAX
         this.publicApiCall('products', 
             function(response) {
-                console.log('Shop products pre-loaded:', response);
-                
                 const products = ProductService.extractProductsFromResponse(response);
                 if (products) {
                     // Cache the shop products
                     sessionStorage.setItem('cachedShopProducts', JSON.stringify(products));
-                    console.log('Shop products cached');
                 }
                 
                 // Navigate to shop page
@@ -81,7 +76,6 @@ var ProductService = window.ProductService || {
                 
                 // Force immediate loading after navigation
                 setTimeout(function() {
-                    console.log('Forcing shop page load after navigation');
                     ProductService.loadShopPage();
                 }, 100);
             },
@@ -98,16 +92,12 @@ var ProductService = window.ProductService || {
     },
 
     loadShopPage: function() {
-        console.log('loadShopPage called');
-        
         const cachedProducts = sessionStorage.getItem('cachedShopProducts');
-        console.log('Cached shop products exist:', !!cachedProducts);
         
         // If we have cached products, use them immediately
         if (cachedProducts) {
             try {
                 const products = JSON.parse(cachedProducts);
-                console.log('Using cached shop products:', products.length, 'products');
                 
                 this.currentProducts = products;
                 this.filteredProducts = products;
@@ -128,7 +118,6 @@ var ProductService = window.ProductService || {
         }
         
         // Fallback: Regular shop loading
-        console.log('No cached data, loading shop normally');
         this.loadShopProducts();
         setTimeout(() => {
             this.setupShopEventListeners();
@@ -145,11 +134,6 @@ var ProductService = window.ProductService || {
                     ProductService.currentProducts = products;
                     ProductService.filteredProducts = products;
                     ProductService.displayShopProducts(products);
-                    
-                    // Set up event listeners for search/filter functionality
-                    setTimeout(() => {
-                        ProductService.setupShopEventListeners();
-                    }, 100);
                 } else {
                     ProductService.showError("Invalid response format from server");
                 }
@@ -691,8 +675,6 @@ var ProductService = window.ProductService || {
 
     // PRODUCT PAGE FUNCTIONALITY
     navigateToProduct: function(productId) {
-        console.log('Navigating to product:', productId);
-        
         // Show loading state if user is on shop page
         if (window.location.hash === '#shop') {
             this.showLoading(true);
@@ -701,13 +683,9 @@ var ProductService = window.ProductService || {
         // Fetch product data first via AJAX
         this.publicApiCall(`products/${productId}`, 
             function(response) {
-                console.log('Product data loaded:', response);
-                
                 // Store both the product ID and the fetched data
                 sessionStorage.setItem('currentProductId', productId);
                 sessionStorage.setItem('currentProductData', JSON.stringify(response));
-                
-                console.log('Data stored in sessionStorage');
                 
                 // Hide loading state
                 ProductService.showLoading(false);
@@ -717,7 +695,6 @@ var ProductService = window.ProductService || {
                 
                 // Force immediate loading after navigation
                 setTimeout(function() {
-                    console.log('Forcing product page load after navigation');
                     ProductService.loadProductPage();
                 }, 100);
             },
@@ -739,13 +716,8 @@ var ProductService = window.ProductService || {
     },
 
     loadProductPage: function() {
-        console.log('loadProductPage called');
-        
         const productId = sessionStorage.getItem('currentProductId');
         const cachedData = sessionStorage.getItem('currentProductData');
-        
-        console.log('Product ID:', productId);
-        console.log('Cached data exists:', !!cachedData);
         
         if (!productId) {
             console.error('No product ID found for product page');
@@ -756,7 +728,6 @@ var ProductService = window.ProductService || {
         if (cachedData) {
             try {
                 const productData = JSON.parse(cachedData);
-                console.log('Using cached product data:', productData);
                 this.populateProductPage(productData);
                 // Clear the cached data after use
                 sessionStorage.removeItem('currentProductData');
@@ -768,7 +739,6 @@ var ProductService = window.ProductService || {
         }
 
         // Fallback: Load from API if no cached data (e.g., direct URL access)
-        console.log('No cached data, loading from API');
         this.loadSingleProduct(productId);
     },
 
@@ -785,8 +755,6 @@ var ProductService = window.ProductService || {
     },
 
     populateProductPage: function(product) {
-        console.log('populateProductPage called with:', product);
-        
         if (!product) {
             this.showProductError('Product not found');
             return;
@@ -794,7 +762,6 @@ var ProductService = window.ProductService || {
 
         // Ensure we're on the product page before trying to populate
         if (!$('.product_page').length || !$('.product_details').length) {
-            console.warn('Product page elements not found, waiting...');
             // Retry after a short delay
             setTimeout(() => {
                 this.populateProductPage(product);
@@ -846,8 +813,6 @@ var ProductService = window.ProductService || {
         if (product.stock_quantity) {
             $('#quantity').attr('max', product.stock_quantity);
         }
-
-        console.log('Product page populated successfully');
     },
 
     generateProductFeatures: function(product) {
@@ -886,18 +851,13 @@ var ProductService = window.ProductService || {
 
     // FRONT PAGE FUNCTIONALITY
     navigateToFrontPage: function() {
-        console.log('Navigating to front page');
-        
         // Pre-load products for featured section via AJAX
         this.publicApiCall('products', 
             function(response) {
-                console.log('Front page products pre-loaded:', response);
-                
                 const products = ProductService.extractProductsFromResponse(response);
                 if (products) {
                     // Cache the products for featured section
                     sessionStorage.setItem('cachedFrontPageProducts', JSON.stringify(products));
-                    console.log('Front page products cached');
                 }
                 
                 // Navigate to front page
@@ -905,7 +865,6 @@ var ProductService = window.ProductService || {
                 
                 // Force immediate loading after navigation
                 setTimeout(function() {
-                    console.log('Forcing front page load after navigation');
                     ProductService.loadFrontPage();
                 }, 100);
             },
@@ -922,16 +881,12 @@ var ProductService = window.ProductService || {
     },
 
     loadFrontPage: function() {
-        console.log('loadFrontPage called');
-        
         const cachedProducts = sessionStorage.getItem('cachedFrontPageProducts');
-        console.log('Cached front page products exist:', !!cachedProducts);
         
         // If we have cached products, use them immediately
         if (cachedProducts) {
             try {
                 const products = JSON.parse(cachedProducts);
-                console.log('Using cached front page products:', products.length, 'products');
                 
                 // Get 3 random products for featured section
                 const featuredProducts = this.getRandomProducts(products, 3);
@@ -947,7 +902,6 @@ var ProductService = window.ProductService || {
         }
         
         // Fallback: Regular featured products loading
-        console.log('No cached data, loading featured products normally');
         this.loadFeaturedProducts();
     },
 };
