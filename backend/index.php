@@ -16,7 +16,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 // Load all required files
 $required_files = [
-    __DIR__ . '/dao/config.php',
+    __DIR__ . '/config.php',
     __DIR__ . '/dao/BaseDao.php',
     __DIR__ . '/dao/AuthDao.php',
     __DIR__ . '/services/BaseService.php',

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../dao/config.php';
+require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../data/roles.php';
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
