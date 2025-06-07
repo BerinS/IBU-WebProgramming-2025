@@ -73,8 +73,7 @@
  *                  @OA\Property(property="updated_at", type="string", format="date-time")
  *              )
  *          )
- *      ),
- *      security={{"bearerAuth": {}}}
+ *      )
  * )
  */
 

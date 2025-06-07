@@ -61,7 +61,8 @@ Flight::before('start', function(&$params, &$output) {
         '/auth/register',
         '/docs',
         '/',
-        '/test-service'
+        '/test-service',
+        '/products'
     ];
     
     // Check if the current path should be excluded
