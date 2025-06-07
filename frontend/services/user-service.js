@@ -237,6 +237,77 @@ var UserService = window.UserService || {
         if (Utils.hasAnyRole([Constants.ROLES.ADMIN, Constants.ROLES.EMPLOYEE])) {
             $(".staff-only").show();
         }
+    },
+
+    // Method to fetch all users for admin dashboard
+    getAllUsers: function(callback, error_callback) {
+        RestClient.get(Constants.API.USERS, null, callback, error_callback);
+    },
+
+    // Method to populate users table in dashboard
+    loadUsersForDashboard: function() {
+        const user = Utils.getCurrentUser();
+        if (!user || user.role !== Constants.ROLES.ADMIN) {
+            console.log('Access denied: Only admins can view users');
+            return;
+        }
+
+        UserService.getAllUsers(
+            function(response) {
+                console.log('Users loaded successfully:', response);
+                UserService.populateUsersTable(response.data);
+            },
+            function(error) {
+                console.error('Error loading users:', error);
+                Utils.showError('Failed to load users');
+            }
+        );
+    },
+
+    // Method to populate the users list with data (matching products list style)
+    populateUsersTable: function(users) {
+        const usersList = $('#users-list');
+        usersList.empty();
+
+        if (!users || users.length === 0) {
+            usersList.html('<div class="text-center py-3">No users found</div>');
+            return;
+        }
+
+        users.forEach(function(user) {
+            const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'No name provided';
+            const createdDate = new Date(user.created_at).toLocaleDateString();
+            const userItem = `
+                <div class="list-group-item" data-user-id="${user.id}">
+                    <div class="row align-items-center">
+                        <div class="col-2">
+                            <div class="d-flex align-items-center justify-content-center" style="height: 100px; width: 100px; background-color: #f8f9fa; border-radius: 50%; margin: 0 auto;">
+                                <i class="bi bi-person-fill" style="font-size: 2.5rem; color: #6c757d;"></i>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <h5 class="mb-1">${fullName}</h5>
+                            <p class="mb-1"><strong>Email:</strong> ${user.email}</p>
+                            <p class="mb-1"><strong>Role:</strong> <span class="badge bg-${UserService.getRoleBadgeColor(user.role)}">${user.role}</span></p>
+                            <p class="mb-1"><strong>Member since:</strong> ${createdDate}</p>
+                        </div>
+                        <div class="col-4 text-end">
+                            <small class="text-muted">User ID: ${user.id}</small>
+                        </div>
+                    </div>
+                </div>`;
+            usersList.append(userItem);
+        });
+    },
+
+    // Helper method to get badge color for user roles
+    getRoleBadgeColor: function(role) {
+        switch(role) {
+            case Constants.ROLES.ADMIN: return 'danger';
+            case Constants.ROLES.EMPLOYEE: return 'warning';
+            case Constants.ROLES.CUSTOMER: return 'secondary';
+            default: return 'secondary';
+        }
     }
 };
 

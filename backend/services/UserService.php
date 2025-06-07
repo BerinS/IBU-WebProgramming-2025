@@ -14,6 +14,11 @@ class UserService extends BaseService {
         return $this->dao->getByEmail($email);
     }
 
+    // Get all users with safe data (no passwords) - for admin dashboard
+    public function getAllUsersSafe() {
+        return $this->user_dao->get_all_users_safe();
+    }
+
     // Example of business logic: Validate email uniqueness before creation
     public function createUser($data) {
         if ($this->dao->getByEmail($data['email'])) {
