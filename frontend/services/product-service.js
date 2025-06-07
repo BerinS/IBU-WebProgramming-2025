@@ -19,13 +19,31 @@ var ProductService = window.ProductService || {
             if (view === '#dashboard') {
                 ProductService.loadProducts();
             } else if (view === '#shop') {
-                ProductService.loadShopProducts();
-                setTimeout(function() {
-                    ProductService.setupShopEventListeners();
-                }, 100);
+                ProductService.loadShopPage();
             } else if (view === '#page1') {
-                ProductService.loadFeaturedProducts();
+                ProductService.loadFrontPage();
+            } else if (view === '#product') {
+                ProductService.loadProductPage();
             }
+        });
+
+        // Handle product links with product IDs
+        $(document).on('click', 'a[data-product-id]', function(e) {
+            e.preventDefault();
+            const productId = $(this).data('product-id');
+            ProductService.navigateToProduct(productId);
+        });
+
+        // Handle navigation to shop page (for navbar clicks)
+        $(document).on('click', 'a[href="#shop"]', function(e) {
+            e.preventDefault();
+            ProductService.navigateToShop();
+        });
+
+        // Handle navigation to front page (for navbar/logo clicks)
+        $(document).on('click', 'a[href="#page1"], a[href=""], .navbar-brand', function(e) {
+            e.preventDefault();
+            ProductService.navigateToFrontPage();
         });
     },
 
@@ -34,16 +52,89 @@ var ProductService = window.ProductService || {
         if (currentHash === '#dashboard') {
             this.loadProducts();
         } else if (currentHash === '#shop') {
-            this.loadShopProducts();
-            setTimeout(() => {
-                this.setupShopEventListeners();
-            }, 100);
+            this.loadShopPage();
         } else if (currentHash === '#page1' || currentHash === '') {
-            this.loadFeaturedProducts();
+            this.loadFrontPage();
+        } else if (currentHash.startsWith('#product')) {
+            this.loadProductPage();
         }
     },
 
-    // SHOP FUNCTIONALITY
+    // SHOP PAGE FUNCTIONALITY
+    navigateToShop: function() {
+        console.log('Navigating to shop page');
+        
+        // Pre-load shop products via AJAX
+        this.publicApiCall('products', 
+            function(response) {
+                console.log('Shop products pre-loaded:', response);
+                
+                const products = ProductService.extractProductsFromResponse(response);
+                if (products) {
+                    // Cache the shop products
+                    sessionStorage.setItem('cachedShopProducts', JSON.stringify(products));
+                    console.log('Shop products cached');
+                }
+                
+                // Navigate to shop page
+                window.location.hash = '#shop';
+                
+                // Force immediate loading after navigation
+                setTimeout(function() {
+                    console.log('Forcing shop page load after navigation');
+                    ProductService.loadShopPage();
+                }, 100);
+            },
+            function(error) {
+                console.error('Error pre-loading shop products:', error);
+                
+                // Navigate anyway, will fallback to regular loading
+                window.location.hash = '#shop';
+                setTimeout(function() {
+                    ProductService.loadShopPage();
+                }, 100);
+            }
+        );
+    },
+
+    loadShopPage: function() {
+        console.log('loadShopPage called');
+        
+        const cachedProducts = sessionStorage.getItem('cachedShopProducts');
+        console.log('Cached shop products exist:', !!cachedProducts);
+        
+        // If we have cached products, use them immediately
+        if (cachedProducts) {
+            try {
+                const products = JSON.parse(cachedProducts);
+                console.log('Using cached shop products:', products.length, 'products');
+                
+                this.currentProducts = products;
+                this.filteredProducts = products;
+                this.displayShopProducts(products);
+                
+                // Set up event listeners
+                setTimeout(() => {
+                    this.setupShopEventListeners();
+                }, 100);
+                
+                // Clear cached data after use
+                sessionStorage.removeItem('cachedShopProducts');
+                return;
+            } catch (e) {
+                console.error('Error parsing cached shop products:', e);
+                // Fall back to regular loading
+            }
+        }
+        
+        // Fallback: Regular shop loading
+        console.log('No cached data, loading shop normally');
+        this.loadShopProducts();
+        setTimeout(() => {
+            this.setupShopEventListeners();
+        }, 100);
+    },
+
     loadShopProducts: function() {
         this.showLoading(true);
         
@@ -54,6 +145,11 @@ var ProductService = window.ProductService || {
                     ProductService.currentProducts = products;
                     ProductService.filteredProducts = products;
                     ProductService.displayShopProducts(products);
+                    
+                    // Set up event listeners for search/filter functionality
+                    setTimeout(() => {
+                        ProductService.setupShopEventListeners();
+                    }, 100);
                 } else {
                     ProductService.showError("Invalid response format from server");
                 }
@@ -591,6 +687,268 @@ var ProductService = window.ProductService || {
 
     createFeaturedProductCard: function(product) {
         return this.createProductCard(product, 'featured');
+    },
+
+    // PRODUCT PAGE FUNCTIONALITY
+    navigateToProduct: function(productId) {
+        console.log('Navigating to product:', productId);
+        
+        // Show loading state if user is on shop page
+        if (window.location.hash === '#shop') {
+            this.showLoading(true);
+        }
+
+        // Fetch product data first via AJAX
+        this.publicApiCall(`products/${productId}`, 
+            function(response) {
+                console.log('Product data loaded:', response);
+                
+                // Store both the product ID and the fetched data
+                sessionStorage.setItem('currentProductId', productId);
+                sessionStorage.setItem('currentProductData', JSON.stringify(response));
+                
+                console.log('Data stored in sessionStorage');
+                
+                // Hide loading state
+                ProductService.showLoading(false);
+                
+                // Navigate to product page and immediately load the data
+                window.location.hash = '#product';
+                
+                // Force immediate loading after navigation
+                setTimeout(function() {
+                    console.log('Forcing product page load after navigation');
+                    ProductService.loadProductPage();
+                }, 100);
+            },
+            function(error) {
+                console.error('Error loading product for navigation:', error);
+                ProductService.showLoading(false);
+                
+                // Navigate anyway but with error handling
+                sessionStorage.setItem('currentProductId', productId);
+                sessionStorage.removeItem('currentProductData'); // Clear any old data
+                window.location.hash = '#product';
+                
+                // Still try to load (will fallback to API call)
+                setTimeout(function() {
+                    ProductService.loadProductPage();
+                }, 100);
+            }
+        );
+    },
+
+    loadProductPage: function() {
+        console.log('loadProductPage called');
+        
+        const productId = sessionStorage.getItem('currentProductId');
+        const cachedData = sessionStorage.getItem('currentProductData');
+        
+        console.log('Product ID:', productId);
+        console.log('Cached data exists:', !!cachedData);
+        
+        if (!productId) {
+            console.error('No product ID found for product page');
+            return;
+        }
+
+        // If we have pre-loaded data from navigation, use it immediately
+        if (cachedData) {
+            try {
+                const productData = JSON.parse(cachedData);
+                console.log('Using cached product data:', productData);
+                this.populateProductPage(productData);
+                // Clear the cached data after use
+                sessionStorage.removeItem('currentProductData');
+                return;
+            } catch (e) {
+                console.error('Error parsing cached product data:', e);
+                // Fall back to loading from API
+            }
+        }
+
+        // Fallback: Load from API if no cached data (e.g., direct URL access)
+        console.log('No cached data, loading from API');
+        this.loadSingleProduct(productId);
+    },
+
+    loadSingleProduct: function(productId) {
+        this.publicApiCall(`products/${productId}`, 
+            function(response) {
+                ProductService.populateProductPage(response);
+            },
+            function(error) {
+                console.error('Error loading product:', error);
+                ProductService.showProductError('Failed to load product details');
+            }
+        );
+    },
+
+    populateProductPage: function(product) {
+        console.log('populateProductPage called with:', product);
+        
+        if (!product) {
+            this.showProductError('Product not found');
+            return;
+        }
+
+        // Ensure we're on the product page before trying to populate
+        if (!$('.product_page').length || !$('.product_details').length) {
+            console.warn('Product page elements not found, waiting...');
+            // Retry after a short delay
+            setTimeout(() => {
+                this.populateProductPage(product);
+            }, 200);
+            return;
+        }
+
+        // Update main product image
+        const mainImage = $('#mainImage');
+        if (mainImage.length && product.image_url) {
+            mainImage.attr('src', product.image_url).attr('alt', product.name);
+        }
+
+        // Update thumbnails to use the main product image
+        const thumbnails = $('.thumbnail');
+        thumbnails.each(function() {
+            if (product.image_url) {
+                $(this).attr('src', product.image_url).attr('alt', product.name);
+            }
+        });
+
+        // Update product title
+        $('.product_details h2').text(product.name || 'Product Name');
+
+        // Update brand as SKU (target the text-muted paragraph specifically)
+        $('.product_details p.text-muted.mb-4').text(`Brand: ${product.brand || 'Unknown'}`);
+
+        // Update price
+        const priceContainer = $('.product_details .mb-3').eq(1);
+        const formattedPrice = this.formatPrice(product.price);
+        priceContainer.html(`<span class="h4 me-2">${formattedPrice}</span>`);
+
+        // Update description (target the p.mb-4 that is NOT text-muted)
+        $('.product_details p.mb-4:not(.text-muted)').text(product.description || 'No description available.');
+
+        // Update key features based on available data
+        const featuresContainer = $('.product_details .mt-4 ul');
+        if (featuresContainer.length) {
+            const features = this.generateProductFeatures(product);
+            featuresContainer.html(features);
+        }
+
+        // Store product data for add to cart functionality
+        $('#quantity').data('product-id', product.id);
+        $('#quantity').data('product-price', product.price);
+        $('#quantity').data('stock-quantity', product.stock_quantity);
+
+        // Update quantity input max value based on stock
+        if (product.stock_quantity) {
+            $('#quantity').attr('max', product.stock_quantity);
+        }
+
+        console.log('Product page populated successfully');
+    },
+
+    generateProductFeatures: function(product) {
+        const features = [];
+        
+        if (product.brand) {
+            features.push(`<li>Brand: ${product.brand}</li>`);
+        }
+        
+        if (product.gender) {
+            features.push(`<li>Gender: ${product.gender}</li>`);
+        }
+        
+        if (product.stock_quantity) {
+            const stockStatus = product.stock_quantity > 10 ? 'In Stock' : 
+                               product.stock_quantity > 0 ? `Limited Stock (${product.stock_quantity} remaining)` : 
+                               'Out of Stock';
+            features.push(`<li>Availability: ${stockStatus}</li>`);
+        }
+        
+        // Add some default features to maintain the UI structure
+        if (features.length < 3) {
+            features.push('<li>Premium Quality Materials</li>');
+            features.push('<li>2 Year Warranty</li>');
+        }
+        
+        return features.join('');
+    },
+
+    showProductError: function(message) {
+        $('.product_details h2').text('Product Not Found');
+        $('.product_details p.mb-4').text(message);
+        $('#mainImage').attr('src', 'images/product_watches/default-watch.png');
+        $('.thumbnail').attr('src', 'images/product_watches/default-watch.png');
+    },
+
+    // FRONT PAGE FUNCTIONALITY
+    navigateToFrontPage: function() {
+        console.log('Navigating to front page');
+        
+        // Pre-load products for featured section via AJAX
+        this.publicApiCall('products', 
+            function(response) {
+                console.log('Front page products pre-loaded:', response);
+                
+                const products = ProductService.extractProductsFromResponse(response);
+                if (products) {
+                    // Cache the products for featured section
+                    sessionStorage.setItem('cachedFrontPageProducts', JSON.stringify(products));
+                    console.log('Front page products cached');
+                }
+                
+                // Navigate to front page
+                window.location.hash = '#page1';
+                
+                // Force immediate loading after navigation
+                setTimeout(function() {
+                    console.log('Forcing front page load after navigation');
+                    ProductService.loadFrontPage();
+                }, 100);
+            },
+            function(error) {
+                console.error('Error pre-loading front page products:', error);
+                
+                // Navigate anyway, will fallback to regular loading
+                window.location.hash = '#page1';
+                setTimeout(function() {
+                    ProductService.loadFrontPage();
+                }, 100);
+            }
+        );
+    },
+
+    loadFrontPage: function() {
+        console.log('loadFrontPage called');
+        
+        const cachedProducts = sessionStorage.getItem('cachedFrontPageProducts');
+        console.log('Cached front page products exist:', !!cachedProducts);
+        
+        // If we have cached products, use them immediately
+        if (cachedProducts) {
+            try {
+                const products = JSON.parse(cachedProducts);
+                console.log('Using cached front page products:', products.length, 'products');
+                
+                // Get 3 random products for featured section
+                const featuredProducts = this.getRandomProducts(products, 3);
+                this.displayFeaturedProducts(featuredProducts);
+                
+                // Clear cached data after use
+                sessionStorage.removeItem('cachedFrontPageProducts');
+                return;
+            } catch (e) {
+                console.error('Error parsing cached front page products:', e);
+                // Fall back to regular loading
+            }
+        }
+        
+        // Fallback: Regular featured products loading
+        console.log('No cached data, loading featured products normally');
+        this.loadFeaturedProducts();
     },
 };
 

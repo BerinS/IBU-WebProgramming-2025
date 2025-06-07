@@ -17,13 +17,22 @@ class JWTMiddleware {
 
     private function isExcludedPath($path) {
         error_log("[AuthMiddleware] Checking if path is excluded: " . $path);
-        // Exact match only
+        
+        // Check exact matches first
         foreach ($this->excluded_paths as $excluded) {
             if ($path === $excluded) {
                 error_log("[AuthMiddleware] Path matches excluded path: " . $excluded);
                 return true;
             }
         }
+        
+        // Check pattern matches
+        // Allow public access to GET /products and individual product endpoints
+        if ($path === '/products' || preg_match('/^\/products\/\d+$/', $path)) {
+            error_log("[AuthMiddleware] Path matches products pattern");
+            return true;
+        }
+        
         error_log("[AuthMiddleware] Path is not excluded");
         return false;
     }
