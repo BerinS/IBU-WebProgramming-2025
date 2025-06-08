@@ -84,16 +84,30 @@ class Database {
     public static function connect() {
         if (self::$connection === null) {
             try {
+                // Build DSN
+                $dsn = "mysql:host=" . JWTConfig::DB_HOST() . 
+                       ";dbname=" . JWTConfig::DB_NAME() . 
+                       ";port=" . JWTConfig::DB_PORT();
+                
+                // PDO options
+                $options = [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+                ];
+                
+                // Add SSL options for production (DigitalOcean requires SSL)
+                if (Environment::isProduction()) {
+                    $sslMode = $_ENV['DB_SSL_MODE'] ?? getenv('DB_SSL_MODE') ?? 'REQUIRED';
+                    if ($sslMode === 'REQUIRED') {
+                        $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+                    }
+                }
+                
                 self::$connection = new PDO(
-                    "mysql:host=" . JWTConfig::DB_HOST() . 
-                    ";dbname=" . JWTConfig::DB_NAME() . 
-                    ";port=" . JWTConfig::DB_PORT(),
+                    $dsn,
                     JWTConfig::DB_USER(),
                     JWTConfig::DB_PASSWORD(),
-                    [
-                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-                    ]
+                    $options
                 );
             } catch (PDOException $e) {
                 throw new Exception("Database connection failed: " . $e->getMessage());
