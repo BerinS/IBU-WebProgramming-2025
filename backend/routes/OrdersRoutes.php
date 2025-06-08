@@ -70,7 +70,7 @@ Flight::group('/orders', function() {
         $current_user = Flight::get('user');
         
         // Users can only view their own orders unless they're admin/employee
-        if ($current_user->role === Roles::USER && $current_user->id != $user_id) {
+        if ($current_user->role === Roles::CUSTOMER && $current_user->id != $user_id) {
             Flight::json([
                 'success' => false,
                 'message' => 'Access denied: You can only view your own orders'
@@ -107,7 +107,7 @@ Flight::group('/orders', function() {
         $current_user = Flight::get('user');
 
         // Users can only create orders for themselves unless they're admin
-        if ($current_user->role === Roles::USER && $current_user->id != $data['user_id']) {
+        if ($current_user->role === Roles::CUSTOMER && $current_user->id != $data['user_id']) {
             Flight::json([
                 'success' => false,
                 'message' => 'Access denied: You can only create orders for yourself'
