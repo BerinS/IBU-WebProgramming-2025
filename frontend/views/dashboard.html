@@ -46,10 +46,7 @@
                 <div class="tab-pane fade admin-only" id="users-panel" role="tabpanel" aria-labelledby="users-tab" style="display: none;">
                     <div class="element_container mt-3">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h3>Users</h3>
-                            <button class="btn btn-primary" id="refresh-users-btn">
-                                <i class="bi bi-arrow-clockwise"></i> Refresh
-                            </button>
+                            <h3>Users</h3>                            
                         </div>
 
                         <!-- Users list -->
@@ -160,21 +157,107 @@ $(document).ready(function() {
     ProductService.init();
     ProductService.loadProducts();
 
+    // Auto-refresh functionality for users
+    let usersRefreshInterval;
+    let currentActiveTab = 'products'; // Track current active tab
+    
     // Tab switching handlers
     $('#users-tab').on('click', function() {
         if (user && user.role === Constants.ROLES.ADMIN) {
             console.log('Loading users for admin dashboard');
+            currentActiveTab = 'users';
             UserService.loadUsersForDashboard();
+            
+            // Start auto-refresh for users tab
+            if (usersRefreshInterval) {
+                clearInterval(usersRefreshInterval);
+            }
+            usersRefreshInterval = setInterval(function() {
+                if (currentActiveTab === 'users') {
+                    loadUsersWithStatus(true); // true = silent refresh
+                }
+            }, 30000);
         }
     });
-
-    // Refresh users button handler
-    $('#refresh-users-btn').on('click', function() {
-        if (user && user.role === Constants.ROLES.ADMIN) {
-            console.log('Refreshing users list');
-            UserService.loadUsersForDashboard();
+    
+    // Products tab handler to stop users auto-refresh
+    $('#products-tab').on('click', function() {
+        currentActiveTab = 'products';
+        if (usersRefreshInterval) {
+            clearInterval(usersRefreshInterval);
         }
     });
+    
+    // Clean up interval when navigating away from dashboard
+    $(document).on('spapp.pagehide', function(event, data) {
+        if (data && data.route === '#dashboard' && usersRefreshInterval) {
+            clearInterval(usersRefreshInterval);
+        }
+    });
+    
+    // Function to load users with status updates (for silent refresh)
+    function loadUsersWithStatus(silentRefresh = false) {
+        if (!user || user.role !== Constants.ROLES.ADMIN) {
+            return;
+        }
+        
+        if (silentRefresh) {
+            // For silent refresh, just animate the refresh icon
+            $('#users-refresh-icon').addClass('fa-spin');
+            $('#users-status').text('Updating...');
+        }
+        
+        // Check if UserService is available and has the method
+        if (typeof UserService === 'undefined' || typeof UserService.loadUsersForDashboard !== 'function') {
+            console.error('UserService or loadUsersForDashboard method not available');
+            if (silentRefresh) {
+                $('#users-refresh-icon').removeClass('fa-spin');
+                $('#users-status').html('<i class="bi bi-exclamation-triangle text-warning"></i> Update failed');
+                setTimeout(function() {
+                    $('#users-status').html('<i class="bi bi-arrow-clockwise" id="users-refresh-icon"></i> Auto-updating');
+                }, 3000);
+            }
+            return;
+        }
+        
+        // Store original loadUsersForDashboard if we need to override it
+        const originalMethod = UserService.loadUsersForDashboard;
+        
+        if (silentRefresh) {
+            // Override the method temporarily to handle success/error for silent refresh
+            UserService.loadUsersForDashboard = function() {
+                // Call original method
+                const result = originalMethod.call(this);
+                
+                // Update status indicator after a short delay
+                setTimeout(function() {
+                    $('#users-refresh-icon').removeClass('fa-spin');
+                    $('#users-status').html('<i class="bi bi-arrow-clockwise" id="users-refresh-icon"></i> Auto-updating');
+                }, 1000);
+                
+                // Restore original method
+                UserService.loadUsersForDashboard = originalMethod;
+                
+                return result;
+            };
+        }
+        
+        // Load users
+        try {
+            UserService.loadUsersForDashboard();
+        } catch (error) {
+            console.error('Error loading users:', error);
+            if (silentRefresh) {
+                $('#users-refresh-icon').removeClass('fa-spin');
+                $('#users-status').html('<i class="bi bi-exclamation-triangle text-warning"></i> Update failed');
+                setTimeout(function() {
+                    $('#users-status').html('<i class="bi bi-arrow-clockwise" id="users-refresh-icon"></i> Auto-updating');
+                }, 3000);
+                // Restore original method
+                UserService.loadUsersForDashboard = originalMethod;
+            }
+        }
+    }
 
     // Add product button handler
     $('#add-product-btn').click(function() {
