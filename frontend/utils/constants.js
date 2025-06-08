@@ -44,15 +44,31 @@ if (typeof window.Constants === 'undefined') {
     // Auto-load configuration on page load
     window.Constants.loadConfig = async function() {
         try {
-            // Try to load config from the current domain first
-            const response = await fetch(this.getApiUrl(this.API.CONFIG));
+            // Dynamically determine the config URL based on current domain
+            let configUrl;
+            const currentHost = window.location.hostname;
+            const currentProtocol = window.location.protocol;
+            
+            if (currentHost === 'localhost' || currentHost === '127.0.0.1') {
+                // Local development
+                configUrl = 'http://localhost/IBU-WebProgramming-2025/backend/config';
+            } else {
+                // Production (DigitalOcean or other hosting)
+                configUrl = `${currentProtocol}//${window.location.host}/backend/config`;
+            }
+            
+            console.log('Trying to load config from:', configUrl);
+            const response = await fetch(configUrl);
+            
             if (response.ok) {
                 const config = await response.json();
                 this.updateBaseUrl(config.baseUrl);
-                console.log('Configuration loaded:', config);
+                console.log('Configuration loaded successfully:', config);
+            } else {
+                throw new Error(`Config request failed with status: ${response.status}`);
             }
         } catch (error) {
-            console.log('Using default configuration (local development)');
+            console.log('Failed to load remote config, using default configuration:', error.message);
             // Keep default localhost configuration if config endpoint fails
         }
     };
