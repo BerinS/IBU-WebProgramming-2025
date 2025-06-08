@@ -147,7 +147,7 @@ var ProductService = window.ProductService || {
 
     // Public API method for endpoints that don't require authentication
     publicApiCall: function(endpoint, callback, error_callback) {
-        const url = `${window.location.protocol}//${window.location.host}/IBU-WebProgramming-2025/${endpoint}`;
+        const url = window.Constants.getApiUrl(endpoint);
         
         $.ajax({
             url: url,
@@ -197,7 +197,8 @@ var ProductService = window.ProductService || {
     },
 
     createProductCard: function(product, type) {
-        const imageUrl = product.image_url || 'images/product_watches/default-watch.png';
+        // Use relative path that works in both local and production
+        const imageUrl = product.image_url || './images/product_watches/default-watch.png';
         const formattedPrice = this.formatPrice(product.price);
         
         // Different column classes based on type
@@ -210,7 +211,7 @@ var ProductService = window.ProductService || {
                     <h3 class="product-title">${product.name}</h3>
                     <strong class="product-price">${formattedPrice}</strong>
                     <span class="icon-cross">
-                        <img src="images/cross.svg" class="img-fluid">
+                                                    <img src="./images/cross.svg" class="img-fluid">
                     </span>
                 </a>
             </div>
@@ -845,8 +846,8 @@ var ProductService = window.ProductService || {
     showProductError: function(message) {
         $('.product_details h2').text('Product Not Found');
         $('.product_details p.mb-4').text(message);
-        $('#mainImage').attr('src', 'images/product_watches/default-watch.png');
-        $('.thumbnail').attr('src', 'images/product_watches/default-watch.png');
+                    $('#mainImage').attr('src', './images/product_watches/default-watch.png');
+            $('.thumbnail').attr('src', './images/product_watches/default-watch.png');
     },
 
     // FRONT PAGE FUNCTIONALITY

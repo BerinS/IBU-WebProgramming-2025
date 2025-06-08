@@ -33,7 +33,8 @@ function isLoggedIn() {
 // Login function
 async function login(email, password) {
     try {
-        const response = await fetch('http://localhost/IBU-WebProgramming-2025/backend/index.php/auth/login', {
+        const loginUrl = window.Constants.getApiUrl(window.Constants.API.LOGIN);
+        const response = await fetch(loginUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -57,7 +58,8 @@ async function login(email, password) {
 // Register function
 async function register(email, password) {
     try {
-        const response = await fetch('http://localhost/IBU-WebProgramming-2025/backend/index.php/auth/register', {
+        const registerUrl = window.Constants.getApiUrl(window.Constants.API.REGISTER);
+        const response = await fetch(registerUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

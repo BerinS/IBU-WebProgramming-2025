@@ -1,13 +1,16 @@
 <?php
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
-require __DIR__ . '/../../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../../vendor/autoload.php';
 
-// Define BASE_URL before scanning files
-if($_SERVER['SERVER_NAME'] == 'localhost' || $_SERVER['SERVER_NAME'] == '127.0.0.1'){
+// Load config to use environment detection
+require_once __DIR__ . '/../../../config.php';
+
+// Define BASE_URL using environment detection
+if (Environment::isLocal()) {
     define('BASE_URL', 'http://localhost/IBU-WebProgramming-2025/backend');
 } else {
-    define('BASE_URL', 'https://add-production-server-after-deployment/backend/');
+    define('BASE_URL', JWTConfig::BACKEND_URL());
 }
 
 try {

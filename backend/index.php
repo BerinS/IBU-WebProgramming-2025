@@ -3,20 +3,33 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-header('Access-Control-Allow-Origin: *');
+require_once __DIR__ . '/../vendor/autoload.php';
+
+// Load config first to have access to Environment and JWTConfig classes
+require_once __DIR__ . '/config.php';
+
+// CORS setup - environment aware
+if (Environment::isLocal()) {
+    header('Access-Control-Allow-Origin: *');
+} else {
+    // For production, set specific allowed origins
+    $allowedOrigins = explode(',', $_ENV['ALLOWED_ORIGINS'] ?? getenv('ALLOWED_ORIGINS') ?: JWTConfig::FRONTEND_URL());
+    $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+    if (in_array($origin, $allowedOrigins)) {
+        header('Access-Control-Allow-Origin: ' . $origin);
+    }
+}
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, PATCH, OPTIONS');
 header('Access-Control-Allow-Headers: Authorization, Content-Type, X-Requested-With');
+header('Access-Control-Allow-Credentials: true');
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
-require_once __DIR__ . '/../vendor/autoload.php';
-
-// Load all required files
+// Load all required files (config.php already loaded above)
 $required_files = [
-    __DIR__ . '/config.php',
     __DIR__ . '/dao/BaseDao.php',
     __DIR__ . '/dao/AuthDao.php',
     __DIR__ . '/dao/UserDao.php',
@@ -73,6 +86,7 @@ require_once __DIR__ . '/routes/CartRoutes.php';
 require_once __DIR__ . '/routes/OrdersRoutes.php';
 require_once __DIR__ . '/routes/UserRoutes.php';
 require_once __DIR__ . '/routes/CategoriesRoutes.php';
+require_once __DIR__ . '/routes/ConfigRoutes.php';
 
 
 
