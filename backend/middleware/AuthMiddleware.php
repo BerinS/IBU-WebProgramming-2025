@@ -27,9 +27,10 @@ class JWTMiddleware {
         }
         
         // Check pattern matches
-        // Allow public access to GET /products and individual product endpoints
-        if ($path === '/products' || preg_match('/^\/products\/\d+$/', $path)) {
-            error_log("[AuthMiddleware] Path matches products pattern");
+        // Allow public access to GET /products and individual product endpoints ONLY
+        $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+        if ($method === 'GET' && ($path === '/products' || preg_match('/^\/products\/\d+$/', $path))) {
+            error_log("[AuthMiddleware] Path matches products GET pattern");
             return true;
         }
         

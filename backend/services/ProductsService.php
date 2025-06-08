@@ -57,7 +57,15 @@ class ProductsService extends BaseService {
             throw new Exception("Gender must be one of: male, female, unisex.");
         }
     
-        return $this->dao->insert($product);
+        // Insert the product and get the new ID
+        $product_id = $this->dao->insert($product);
+        
+        // Return the full product object by fetching it from the database
+        if ($product_id) {
+            return $this->dao->get_by_id($product_id);
+        } else {
+            throw new Exception("Failed to create product.");
+        }
     }
     
     
