@@ -4,7 +4,10 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 
-require_once 'vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
+
+// Load config first to have access to Environment and JWTConfig classes
+require_once __DIR__ . '/backend/config.php';
 
 //Services
 require_once __DIR__ . '/backend/services/ProductsService.php'; 
@@ -23,14 +26,25 @@ require_once __DIR__ . '/backend/routes/AuthRoutes.php';
 require_once __DIR__ . '/backend/routes/UserRoutes.php';
 require_once __DIR__ . '/backend/routes/OrdersRoutes.php';
 require_once __DIR__ . '/backend/routes/CategoriesRoutes.php';
+require_once __DIR__ . '/backend/routes/ConfigRoutes.php';
 
 //Middleware
 require_once __DIR__ . '/backend/middleware/AuthMiddleware.php';
 
-// CORS setup
-header('Access-Control-Allow-Origin: *');
+// CORS setup - environment aware
+if (Environment::isLocal()) {
+    header('Access-Control-Allow-Origin: *');
+} else {
+    // For production, set specific allowed origins
+    $allowedOrigins = explode(',', $_ENV['ALLOWED_ORIGINS'] ?? getenv('ALLOWED_ORIGINS') ?: JWTConfig::FRONTEND_URL());
+    $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+    if (in_array($origin, $allowedOrigins)) {
+        header('Access-Control-Allow-Origin: ' . $origin);
+    }
+}
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Origin, Content-Type, X-Auth-Token, Authorization');
+header('Access-Control-Allow-Credentials: true');
 
 // Handle preflight requests
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -61,7 +75,9 @@ Flight::before('start', function(&$params, &$output) {
         '/auth/register',
         '/docs',
         '/',
-        '/test-service'
+        '/test-service',
+        '/products',
+        '/config'
     ];
     
     // Check if the current path should be excluded

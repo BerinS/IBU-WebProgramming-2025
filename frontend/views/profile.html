@@ -31,6 +31,24 @@
                     <i class="bi bi-pencil"></i> Edit Profile
                 </button>
             </div>
+
+            <!-- Orders -->
+            <div class="user-info-container">
+                <div class="d-flex justify-content-between align-items-center mb-3" style="padding-top: 20px;">
+                    <h3>My Orders</h3>                    
+                </div>
+
+                <!-- Orders list -->
+                <div class="list-group" id="orders-list">
+                    <!-- Orders will be loaded here dynamically -->
+                    <div class="text-center py-3" id="loading-orders">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Loading your orders...</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -107,5 +125,185 @@ $(document).ready(function() {
             $('#save-profile-btn, #cancel-edit-btn').remove();
         });
     });
+
+    // Auto-loading orders with AJAX
+    let ordersRefreshInterval;
+    
+    // Initial load
+    loadUserOrders();
+    
+    // Set up automatic refresh every 30 seconds
+    ordersRefreshInterval = setInterval(function() {
+        loadUserOrders(true); // true = silent refresh
+    }, 30000);
+    
+    // Refresh when page becomes visible (user navigates back to profile)
+    $(document).on('spapp.pageshow', function(event, data) {
+        if (data && data.route === '#profile') {
+            loadUserOrders(true);
+        }
+    });
+    
+    // Clear interval when navigating away (cleanup)
+    $(document).on('spapp.pagehide', function(event, data) {
+        if (data && data.route === '#profile' && ordersRefreshInterval) {
+            clearInterval(ordersRefreshInterval);
+        }
+    });
+
+    function loadUserOrders(silentRefresh = false) {
+        // Show loading indicator only for non-silent refresh
+        if (!silentRefresh) {
+            $('#loading-orders').show();
+            $('#orders-list .list-group-item:not(#loading-orders)').remove();
+        } else {
+            // For silent refresh, just animate the refresh icon
+            $('#orders-refresh-icon').addClass('fa-spin');
+            $('#orders-status').text('Updating...');
+        }
+
+        // Check if OrderService is available
+        if (typeof OrderService === 'undefined') {
+            console.error('OrderService not available');
+            if (!silentRefresh) {
+                showOrdersError('OrderService not available');
+            }
+            return;
+        }
+
+        // Get user's orders
+        OrderService.getOrders(
+            function(orders) {
+                if (silentRefresh) {
+                    // For silent refresh, replace content without showing loading
+                    $('#orders-list .list-group-item:not(#loading-orders)').remove();
+                }
+                displayOrders(orders);
+                
+                // Update status indicator
+                if (silentRefresh) {
+                    $('#orders-refresh-icon').removeClass('fa-spin');
+                    $('#orders-status').html('<i class="bi bi-arrow-clockwise" id="orders-refresh-icon"></i> Auto-updating');
+                }
+            },
+            function(error) {
+                console.error('Error loading orders:', error);
+                if (!silentRefresh) {
+                    showOrdersError('Failed to load orders');
+                } else {
+                    // Silent error handling
+                    $('#orders-refresh-icon').removeClass('fa-spin');
+                    $('#orders-status').html('<i class="bi bi-exclamation-triangle text-warning"></i> Update failed');
+                    setTimeout(function() {
+                        $('#orders-status').html('<i class="bi bi-arrow-clockwise" id="orders-refresh-icon"></i> Auto-updating');
+                    }, 3000);
+                }
+            }
+        );
+    }
+
+    function displayOrders(orders) {
+        // Hide loading indicator
+        $('#loading-orders').hide();
+
+        if (!orders || orders.length === 0) {
+            $('#orders-list').append(`
+                <div class="list-group-item text-center py-4">
+                    <i class="bi bi-bag-x" style="font-size: 2rem; color: #6c757d;"></i>
+                    <p class="mt-2 mb-0 text-muted">No orders found</p>
+                    <p class="text-muted">Start shopping to see your orders here!</p>
+                    <a href="#shop" class="btn btn-primary btn-sm mt-2">Go Shopping</a>
+                </div>
+            `);
+            return;
+        }
+
+        // Display each order
+        orders.forEach(function(order) {
+            const orderDate = OrderService.formatDate(order.created_at);
+            const orderStatus = OrderService.formatStatus(order.status);
+            const orderTotal = OrderService.formatPrice(order.total_price);
+            const itemCount = order.item_count || 0;
+            const itemsSummary = order.items_summary || 'No items';
+
+            // Determine status badge color
+            let statusBadgeClass = 'bg-warning';
+            if (order.status === 'shipped') {
+                statusBadgeClass = 'bg-success';
+            } else if (order.status === 'pending') {
+                statusBadgeClass = 'bg-warning';
+            }
+
+            const orderHtml = `
+                <div class="list-group-item">
+                    <div class="d-flex w-100 justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="mb-0"><strong>Order #${order.id}</strong></h6>
+                                <span class="badge ${statusBadgeClass}">${orderStatus}</span>
+                            </div>
+                            <p class="mb-1 text-muted">
+                                <i class="bi bi-calendar"></i> ${orderDate}
+                                <span class="mx-2">|</span>
+                                <i class="bi bi-bag"></i> ${itemCount} item${itemCount !== 1 ? 's' : ''}
+                                <span class="mx-2">|</span>
+                                <strong class="text-success">${orderTotal}</strong>
+                            </p>
+                            <small class="text-muted">
+                                <i class="bi bi-box"></i> ${itemsSummary}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            $('#orders-list').append(orderHtml);
+        });
+    }
+
+    function showOrdersError(message) {
+        $('#loading-orders').hide();
+        $('#orders-list').append(`
+            <div class="list-group-item text-center py-4">
+                <i class="bi bi-exclamation-triangle" style="font-size: 2rem; color: #dc3545;"></i>
+                <p class="mt-2 mb-0 text-danger">${message}</p>
+                <button class="btn btn-outline-primary btn-sm mt-2" onclick="loadUserOrders()">
+                    <i class="bi bi-arrow-clockwise"></i> Try Again
+                </button>
+            </div>
+        `);
+    }
 });
 </script>
+
+<style>
+.profile_container .list-group-item {
+    border: 1px solid #e9ecef !important;
+    border-radius: 0 !important;
+    margin-bottom: 1px;
+}
+
+.profile_container .list-group-item:first-child {
+    border-top-left-radius: 0.375rem !important;
+    border-top-right-radius: 0.375rem !important;
+}
+
+.profile_container .list-group-item:last-child {
+    border-bottom-left-radius: 0.375rem !important;
+    border-bottom-right-radius: 0.375rem !important;
+    margin-bottom: 0;
+}
+
+.profile_container .list-group-item:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.2s ease;
+}
+
+.profile_container .user-info-container {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+</style>

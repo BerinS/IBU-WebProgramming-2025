@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../dao/config.php';
+require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../data/roles.php';
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
@@ -12,18 +12,42 @@ class JWTMiddleware {
         '/test',
         '/test-db',
         '/test-users-table',
-        '/test-products-table'
+        '/test-products-table',
+        '/config'
     ];
 
     private function isExcludedPath($path) {
         error_log("[AuthMiddleware] Checking if path is excluded: " . $path);
-        // Exact match only
+        
+        // Normalize path by removing query strings and trailing slashes
+        $normalizedPath = parse_url($path, PHP_URL_PATH);
+        $normalizedPath = rtrim($normalizedPath, '/');
+        
+        // Check exact matches first
         foreach ($this->excluded_paths as $excluded) {
-            if ($path === $excluded) {
+            if ($normalizedPath === $excluded || $path === $excluded) {
                 error_log("[AuthMiddleware] Path matches excluded path: " . $excluded);
                 return true;
             }
         }
+        
+        // Check pattern matches
+        // Allow public access to GET /products and individual product endpoints ONLY
+        $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+        if ($method === 'GET') {
+            // Check for /products (exact match or with query parameters)
+            if ($normalizedPath === '/products' || $path === '/products') {
+                error_log("[AuthMiddleware] Path matches products GET pattern (list)");
+                return true;
+            }
+            
+            // Check for /products/{id} pattern
+            if (preg_match('/^\/products\/\d+$/', $normalizedPath)) {
+                error_log("[AuthMiddleware] Path matches products GET pattern (single)");
+                return true;
+            }
+        }
+        
         error_log("[AuthMiddleware] Path is not excluded");
         return false;
     }

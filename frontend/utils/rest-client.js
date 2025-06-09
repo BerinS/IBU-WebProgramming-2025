@@ -6,11 +6,10 @@ var RestClient = window.RestClient || {
         console.log('Method:', method);
         console.log('Data:', data);
         
-        $.ajax({
+        // Configure ajax settings based on method
+        var ajaxSettings = {
             url: Constants.PROJECT_BASE_URL + url,
             type: method,
-            data: method === 'GET' ? data : JSON.stringify(data),
-            contentType: 'application/json',
             beforeSend: function(xhr) {
                 // Add Authorization header if user is logged in
                 const token = localStorage.getItem(Constants.STORAGE.USER_TOKEN);
@@ -44,7 +43,30 @@ var RestClient = window.RestClient || {
                     Utils.showError(message);
                 }
             }
-        });
+        };
+
+        // Handle data and content type based on method
+        if (method === 'GET') {
+            // For GET requests, data goes in query parameters
+            if (data) {
+                ajaxSettings.data = data;
+            }
+        } else if (method === 'DELETE') {
+            // For DELETE requests, don't send a body if data is null/empty
+            if (data && Object.keys(data).length > 0) {
+                ajaxSettings.data = JSON.stringify(data);
+                ajaxSettings.contentType = 'application/json';
+            }
+            // If no data, don't set contentType or data
+        } else {
+            // For POST, PUT, PATCH requests
+            if (data) {
+                ajaxSettings.data = JSON.stringify(data);
+                ajaxSettings.contentType = 'application/json';
+            }
+        }
+        
+        $.ajax(ajaxSettings);
     },
 
     // Authentication methods

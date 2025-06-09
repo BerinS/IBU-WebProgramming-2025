@@ -28,51 +28,16 @@
         <div class="col-md-12 col-lg-3 mb-5 mb-lg-0">
             <h2 class="mb-4 section-title">Featured watches</h2>
             <p class="mb-4">Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor tempor tristique. </p>
-            <p><a href="shop.html" class="btn">Explore</a></p>
+            <p><a href="#shop" class="btn">Explore</a></p>
         </div> 
         <!-- End Column 1 -->
 
-        <!-- Start Column 2 -->
-        <div class="col-12 col-md-4 col-lg-3 mb-5 mb-md-0">
-            <a class="product-item" href="#product">
-                <img src="images/product_watches/product_watch_1_tag_heuer.png" class="img-fluid product-thumbnail">
-                <h3 class="product-title">Tag Heuer Carrera Cal.16</h3>
-                <strong class="product-price">$5,100</strong>
-
-                <span class="icon-cross">
-                    <img src="images/cross.svg" class="img-fluid">
-                </span>
-            </a>
-        </div> 
-        <!-- End Column 2 -->
-
-        <!-- Start Column 3 -->
-        <div class="col-12 col-md-4 col-lg-3 mb-5 mb-md-0">
-            <a class="product-item" href="#product">
-                <img src="images/product_watches/product_watch_2_tissot.png" class="img-fluid product-thumbnail">
-                <h3 class="product-title">Tissot Rose Dream 18K Gold</h3>
-                <strong class="product-price">$3,560</strong>
-
-                <span class="icon-cross">
-                    <img src="images/cross.svg" class="img-fluid">
-                </span>
-            </a>
+        <!-- Featured Products Container - populated dynamically -->
+        <div id="featuredProductsContainer" class="col-lg-9">
+            <div class="row" id="featuredProductsRow">
+                <!-- Featured products will be loaded here -->
+            </div>
         </div>
-        <!-- End Column 3 -->
-
-        <!-- Start Column 4 -->
-        <div class="col-12 col-md-4 col-lg-3 mb-5 mb-md-0">
-            <a class="product-item" href="#product">
-                <img src="images/product_watches/product_watch_3_iwc.png" class="img-fluid product-thumbnail">
-                <h3 class="product-title">IWC Portugieser Chronograph</h3>
-                <strong class="product-price">$7,900</strong>
-
-                <span class="icon-cross">
-                    <img src="images/cross.svg" class="img-fluid">
-                </span>
-            </a>
-        </div>
-        <!-- End Column 4 -->
 
     </div>
 </div>
@@ -86,7 +51,7 @@
         <div class="col-lg-6">
             <h2 class="section-title">Why Choose <b>WatchLand?</b></h2>
             <p>At WatchLand, we believe that every moment counts, and what better way to cherish those moments than with a timeless timepiece? Our commitment to quality, style, 
-                and exceptional service sets us apart. Here’s why WatchLand is your ultimate destination for watches:</p>
+                and exceptional service sets us apart. Here's why WatchLand is your ultimate destination for watches:</p>
 
             <div class="row my-5">
                 <div class="col-6 col-md-6">
@@ -95,7 +60,7 @@
                             <img src="images/truck.svg" alt="Image" class="imf-fluid">
                         </div>
                         <h3>Fast &amp; Free Shipping</h3>
-                        <p>We know you can’t wait to strap on your new watch. That’s why we offer fast and free shipping on all orders. Whether you're across the street or across the globe, 
+                        <p>We know you can't wait to strap on your new watch. That's why we offer fast and free shipping on all orders. Whether you're across the street or across the globe, 
                             your WatchLand timepiece will arrive at your doorstep in no time.</p>
                     </div>
                 </div>
@@ -117,7 +82,7 @@
                             <img src="images/support.svg" alt="Image" class="imf-fluid">
                         </div>
                         <h3>24/7 Support</h3>
-                        <p>Got a question? We’re here to help! Our dedicated customer support team is available around the clock to assist you with any inquiries, ensuring a seamless 
+                        <p>Got a question? We're here to help! Our dedicated customer support team is available around the clock to assist you with any inquiries, ensuring a seamless 
                             shopping experience from start to finish.</p>
                     </div>
                 </div>
@@ -128,7 +93,7 @@
                             <img src="images/return.svg" alt="Image" class="imf-fluid">
                         </div>
                         <h3>Hassle Free Returns</h3>
-                        <p>We want you to be completely satisfied with your purchase. If for any reason you’re not happy with your watch, our hassle-free return policy makes it easy to exchange or 
+                        <p>We want you to be completely satisfied with your purchase. If for any reason you're not happy with your watch, our hassle-free return policy makes it easy to exchange or 
                             return your item.</p>
                     </div>
                 </div>
@@ -160,8 +125,8 @@
         </div>
         <div class="col-lg-5 ps-lg-5">
             <h2 class="section-title mb-4">We Help You Find the Perfect Timepiece</h2>
-            <p>We believe that a watch is more than just a tool to tell time—it’s a statement of your style, personality, and aspirations. Whether you’re looking for a classic design, a modern masterpiece, 
-                or a sporty companion, we’re here to guide you in finding the perfect watch that suits your lifestyle.</p>          
+            <p>We believe that a watch is more than just a tool to tell time—it's a statement of your style, personality, and aspirations. Whether you're looking for a classic design, a modern masterpiece, 
+                or a sporty companion, we're here to guide you in finding the perfect watch that suits your lifestyle.</p>          
         </div>
     </div>
 </div>
@@ -240,7 +205,7 @@
                                     <div class="col-lg-8 mx-auto">
                                         <div class="testimonial-block text-center">
                                             <blockquote class="mb-5">
-                                                <p>&ldquo;The service was outstanding! From start to finish, everything was smooth, professional, and beyond expectations. I’ve never felt more valued as a customer. 
+                                                <p>&ldquo;The service was outstanding! From start to finish, everything was smooth, professional, and beyond expectations. I've never felt more valued as a customer. 
                                                     Highly recommend to anyone looking for reliability and quality!&rdquo;</p>
                                             </blockquote>
                                             <div class="author-info">
@@ -280,8 +245,8 @@
                                     <div class="col-lg-8 mx-auto">
                                         <div class="testimonial-block text-center">
                                             <blockquote class="mb-5">
-                                                <p>&ldquo;A truly exceptional experience! The team was helpful, knowledgeable, and always available to answer my questions. I’ve recommended them to all my colleagues, 
-                                                    and I’ll definitely be coming back in the future!&rdquo;</p>
+                                                <p>&ldquo;A truly exceptional experience! The team was helpful, knowledgeable, and always available to answer my questions. I've recommended them to all my colleagues, 
+                                                    and I'll definitely be coming back in the future!&rdquo;</p>
                                             </blockquote>
                                             <div class="author-info">
                                                 <div class="author-pic">

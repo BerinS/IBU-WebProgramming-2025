@@ -1,9 +1,4 @@
 <?php
-require_once __DIR__ . '/../services/CartService.php';
-require_once __DIR__ . '/../services/CartItemsService.php';
-
-Flight::register('cartService', 'CartService');
-Flight::register('cartItemsService', 'CartItemsService');
 
 /**
  * @OA\Tag(
@@ -190,7 +185,7 @@ Flight::route('POST /cart/items', function() {
 // Remove item from cart
 Flight::route('DELETE /cart/items/@item_id', function($item_id) {
     $current_user = Flight::get('user');
-    $cart_item = Flight::cartItemsService()->getById($item_id);
+    $cart_item = Flight::cartItemsService()->get_by_id($item_id);
 
     // Verify the item belongs to the user's cart
     if (!$cart_item) {
@@ -198,7 +193,7 @@ Flight::route('DELETE /cart/items/@item_id', function($item_id) {
         return;
     }
 
-    $cart = Flight::cartService()->getById($cart_item['cart_id']);
+    $cart = Flight::cartService()->get_by_id($cart_item['cart_id']);
     if ($current_user->role !== Roles::ADMIN && $current_user->id != $cart['user_id']) {
         Flight::json([
             'success' => false,
@@ -259,7 +254,7 @@ Flight::route('DELETE /cart/items/@item_id', function($item_id) {
 Flight::route('PUT /cart/items/@item_id', function($item_id) {
     $data = Flight::request()->data->getData();
     $current_user = Flight::get('user');
-    $cart_item = Flight::cartItemsService()->getById($item_id);
+    $cart_item = Flight::cartItemsService()->get_by_id($item_id);
 
     if (!$cart_item) {
         Flight::json(["error" => "Item not found"], 404);
@@ -267,7 +262,7 @@ Flight::route('PUT /cart/items/@item_id', function($item_id) {
     }
 
     // Verify the item belongs to the user's cart
-    $cart = Flight::cartService()->getById($cart_item['cart_id']);
+    $cart = Flight::cartService()->get_by_id($cart_item['cart_id']);
     if ($current_user->role !== Roles::ADMIN && $current_user->id != $cart['user_id']) {
         Flight::json([
             'success' => false,

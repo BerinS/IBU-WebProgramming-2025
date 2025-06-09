@@ -66,7 +66,7 @@ Flight::group('/user', function() {
     Flight::route('GET /all', function() {
         Flight::auth_middleware()->authorizeRole(Roles::ADMIN);
         
-        $users = Flight::user_service()->get_all();
+        $users = Flight::user_service()->getAllUsersSafe();
         Flight::json([
             'success' => true,
             'data' => $users
