@@ -902,8 +902,10 @@ var ProductService = window.ProductService || {
             }
         }
         
-        // Fallback: Regular featured products loading
-        this.loadFeaturedProducts();
+        // Fallback: Regular featured products loading with delay to ensure API readiness
+        setTimeout(function() {
+            ProductService.loadFeaturedProducts();
+        }, 750);
     },
 };
 
