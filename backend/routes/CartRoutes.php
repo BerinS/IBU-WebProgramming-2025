@@ -58,7 +58,6 @@ require_once __DIR__ . '/../data/roles.php';
 
 // Get a cart by user ID
 Flight::route('GET /cart/@user_id', function($user_id) {
-    Flight::auth_middleware()->authenticate();
     // Verify user can only access their own cart unless admin
     $current_user = Flight::get('user');
     
@@ -127,7 +126,6 @@ Flight::route('GET /cart/@user_id', function($user_id) {
 
 // Add item to cart
 Flight::route('POST /cart/items', function() {
-    Flight::auth_middleware()->authenticate();
     $data = Flight::request()->data->getData();
     $current_user = Flight::get('user');
 
@@ -187,7 +185,6 @@ Flight::route('POST /cart/items', function() {
 
 // Remove item from cart
 Flight::route('DELETE /cart/items/@item_id', function($item_id) {
-    Flight::auth_middleware()->authenticate();
     $current_user = Flight::get('user');
     $cart_item = Flight::cartItemsService()->get_by_id($item_id);
 
@@ -256,7 +253,6 @@ Flight::route('DELETE /cart/items/@item_id', function($item_id) {
 
 // Update quantity of a cart item
 Flight::route('PUT /cart/items/@item_id', function($item_id) {
-    Flight::auth_middleware()->authenticate();
     $data = Flight::request()->data->getData();
     $current_user = Flight::get('user');
     $cart_item = Flight::cartItemsService()->get_by_id($item_id);
@@ -321,7 +317,6 @@ Flight::route('PUT /cart/items/@item_id', function($item_id) {
  * )
  */
 Flight::route('DELETE /cart/@user_id', function($user_id) {
-    Flight::auth_middleware()->authenticate();
     $current_user = Flight::get('user');
     
     // Verify user can only delete their own cart unless admin
