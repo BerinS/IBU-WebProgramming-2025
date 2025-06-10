@@ -200,14 +200,15 @@ Flight::route('POST /products', function() {
  *             @OA\Property(property="brand", type="string"),
  *             @OA\Property(property="stock_quantity", type="integer"),
  *             @OA\Property(property="gender", type="string"),
- *             @OA\Property(property="image_url", type="string")
+ *             @OA\Property(property="image_url", type="string"),
+ *             @OA\Property(property="created_at", type="string", format="date-time"),
+ *             @OA\Property(property="updated_at", type="string", format="date-time")
  *         )
  *     ),
  *     @OA\Response(
  *         response=404,
  *         description="Product not found"
- *     ),
- *     security={{"bearerAuth": {}}}
+ *     )
  * )
  */
 Flight::route('GET /products/@id', function($id) {
@@ -311,11 +312,27 @@ Flight::route('PUT /products/@id', function($id) {
  *     ),
  *     @OA\Response(
  *         response=200,
- *         description="Product deleted successfully"
+ *         description="Product deleted successfully",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="success", type="boolean", example=true),
+ *             @OA\Property(property="message", type="string", example="Product deleted successfully")
+ *         )
  *     ),
  *     @OA\Response(
  *         response=404,
- *         description="Product not found"
+ *         description="Product not found",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="success", type="boolean", example=false),
+ *             @OA\Property(property="message", type="string", example="Product not found")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Internal server error",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="success", type="boolean", example=false),
+ *             @OA\Property(property="message", type="string", example="Error deleting product: Database error")
+ *         )
  *     ),
  *     security={{"bearerAuth": {}}}
  * )
