@@ -123,6 +123,22 @@ var CartService = window.CartService || {
     formatPrice: function(price) {
         const numPrice = parseFloat(price) || 0;
         return `$${numPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    },
+
+    // Auto-refresh cart when navigating to cart page
+    setupAutoRefresh: function() {
+        $(document).on('click', 'a[href="#cart"]', function() {
+            setTimeout(function() {
+                if (window.location.hash === '#cart') {
+                    // Try page-specific function first, otherwise use service method
+                    if (typeof loadCart === 'function') {
+                        loadCart();
+                    } else {
+                        CartService.getCart();
+                    }
+                }
+            }, 200);
+        });
     }
 };
 

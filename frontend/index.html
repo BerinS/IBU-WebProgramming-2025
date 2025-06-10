@@ -270,34 +270,11 @@
 		<script src="js/custom.js"></script>
 		<script src="js/auth.js"></script>
 
-		<!-- Initialize UserService -->
+		<!-- Initialize Services -->
 		<script>
 			$(document).ready(function() {
 				UserService.init();
-				
-				// Auto-refresh cart when cart navigation is clicked
-				$('a[href="#cart"]').on('click', function() {
-					// Small delay to ensure the cart page loads first
-					setTimeout(function() {
-						// Check if we're actually on the cart page and CartService is available
-						if (window.location.hash === '#cart' && typeof CartService !== 'undefined') {
-							// Trigger cart reload by calling the cart page's loadCart function
-							if (typeof loadCart === 'function') {
-								loadCart();
-							} else {
-								// Fallback: manually trigger cart loading
-								CartService.getCart(
-									function(cart) {
-										console.log('Cart refreshed from navigation');
-									},
-									function(error) {
-										console.error('Error refreshing cart from navigation:', error);
-									}
-								);
-							}
-						}
-					}, 200);
-				});
+				CartService.setupAutoRefresh();
 			});
 		</script>
 	</body>
