@@ -1,120 +1,104 @@
 <?php
-// Environment Detection
+// Simple Environment Detection
 class Environment {
-    public static function detect() {
-        // Check if we're on localhost or production
-        $serverName = $_SERVER['SERVER_NAME'] ?? $_SERVER['HTTP_HOST'] ?? 'localhost';
-        $isLocal = in_array($serverName, ['localhost', '127.0.0.1']) || 
-                   strpos($serverName, 'localhost') !== false || 
-                   strpos($serverName, '127.0.0.1') !== false;
-        
-        return $isLocal ? 'local' : 'production';
-    }
-    
     public static function isLocal() {
-        return self::detect() === 'local';
-    }
-    
-    public static function isProduction() {
-        return self::detect() === 'production';
+        $host = $_SERVER['SERVER_NAME'] ?? $_SERVER['HTTP_HOST'] ?? 'localhost';
+        return $host === 'localhost' || $host === '127.0.0.1' || strpos($host, 'localhost') !== false;
     }
 }
 
-// JWT Secret Key Definition
-class JWTConfig {
+// Configuration Settings
+class Config {
     
-    public static function DB_NAME()
-    {
-        // Use environment variable if available, otherwise default
-        return $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?: 'watchland'; 
-    }
-    
-    public static function DB_PORT()
-    {
-        return $_ENV['DB_PORT'] ?? getenv('DB_PORT') ?: 3306;
-    }
-    
-    public static function DB_USER()
-    {
-        return $_ENV['DB_USER'] ?? getenv('DB_USER') ?: 'root';
-    }
-    
-    public static function DB_PASSWORD()
-    {
-        // For production, this should come from environment variables
-        if (Environment::isProduction()) {
-            return $_ENV['DB_PASSWORD'] ?? getenv('DB_PASSWORD') ?: '';
-        }
-        // Keep existing password for local development
-        return $_ENV['DB_PASSWORD'] ?? getenv('DB_PASSWORD') ?: 'Berin1235';
-    }
-    
-    public static function DB_HOST()
-    {
-        // For production, typically 'localhost' or specific DB host
-        // For local development, keep existing 'localhost'
-        return $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: 'localhost';
-    }
- 
-    public static function JWT_SECRET() {
-        // Use environment variable for production, fallback for local
-        return $_ENV['JWT_SECRET'] ?? getenv('JWT_SECRET') ?: 'secret_key';
-    }
-    
-    public static function FRONTEND_URL() {
+    // Database Configuration
+    public static function getDBConfig() {
         if (Environment::isLocal()) {
-            return 'http://localhost/IBU-WebProgramming-2025';
+            // Local Development Settings
+            return [
+                'host' => 'localhost',
+                'name' => 'watchland',
+                'user' => 'root',
+                'password' => 'Berin1235',
+                'port' => 3306
+            ];
+        } else {
+            // Production Settings (from environment variables)
+            return [
+                'host' => $_ENV['DB_HOST'] ?? 'localhost',
+                'name' => $_ENV['DB_NAME'] ?? 'watchland',
+                'user' => $_ENV['DB_USER'] ?? 'root',
+                'password' => $_ENV['DB_PASSWORD'] ?? '',
+                'port' => $_ENV['DB_PORT'] ?? 3306
+            ];
         }
-        // For production, this will be your Digital Ocean domain
-        return $_ENV['FRONTEND_URL'] ?? getenv('FRONTEND_URL') ?: 'https://your-domain.com';
     }
     
-    public static function BACKEND_URL() {
+    // JWT Secret Key
+    public static function getJWTSecret() {
+        return $_ENV['JWT_SECRET'] ?? 'secret_key';
+    }
+    
+    // URL Configuration
+    public static function getURLs() {
         if (Environment::isLocal()) {
-            return 'http://localhost/IBU-WebProgramming-2025/backend';
+            return [
+                'frontend' => 'http://localhost/IBU-WebProgramming-2025',
+                'backend' => 'http://localhost/IBU-WebProgramming-2025/backend'
+            ];
+        } else {
+            return [
+                'frontend' => $_ENV['FRONTEND_URL'] ?? 'https://watchland-kg5xq.ondigitalocean.app',
+                'backend' => $_ENV['BACKEND_URL'] ?? 'https://watchland-kg5xq.ondigitalocean.app/backend'
+            ];
         }
-        // For production, this will be your Digital Ocean domain + backend path
-        return $_ENV['BACKEND_URL'] ?? getenv('BACKEND_URL') ?: 'https://your-domain.com/backend';
     }
 }
 
+// Database Connection
 class Database {
     private static $connection = null;
 
     public static function connect() {
         if (self::$connection === null) {
             try {
-                // Build DSN
-                $dsn = "mysql:host=" . JWTConfig::DB_HOST() . 
-                       ";dbname=" . JWTConfig::DB_NAME() . 
-                       ";port=" . JWTConfig::DB_PORT();
+                // Get database configuration
+                $dbConfig = Config::getDBConfig();
                 
-                // PDO options
+                // Build connection string
+                $dsn = "mysql:host={$dbConfig['host']};dbname={$dbConfig['name']};port={$dbConfig['port']}";
+                
+                // Connection options
                 $options = [
                     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
                 ];
                 
-                // Add SSL options for production (DigitalOcean requires SSL)
-                if (Environment::isProduction()) {
-                    $sslMode = $_ENV['DB_SSL_MODE'] ?? getenv('DB_SSL_MODE') ?? 'REQUIRED';
-                    if ($sslMode === 'REQUIRED') {
-                        $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
-                    }
+                // Add SSL for production if needed
+                if (!Environment::isLocal()) {
+                    $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
                 }
                 
-                self::$connection = new PDO(
-                    $dsn,
-                    JWTConfig::DB_USER(),
-                    JWTConfig::DB_PASSWORD(),
-                    $options
-                );
+                // Create connection
+                self::$connection = new PDO($dsn, $dbConfig['user'], $dbConfig['password'], $options);
+                
             } catch (PDOException $e) {
                 throw new Exception("Database connection failed: " . $e->getMessage());
             }
         }
         return self::$connection;
     }
+}
+
+// Compatibility layer for existing code that uses JWTConfig
+class JWTConfig {
+    public static function DB_NAME() { return Config::getDBConfig()['name']; }
+    public static function DB_HOST() { return Config::getDBConfig()['host']; }
+    public static function DB_USER() { return Config::getDBConfig()['user']; }
+    public static function DB_PASSWORD() { return Config::getDBConfig()['password']; }
+    public static function DB_PORT() { return Config::getDBConfig()['port']; }
+    public static function JWT_SECRET() { return Config::getJWTSecret(); }
+    public static function FRONTEND_URL() { return Config::getURLs()['frontend']; }
+    public static function BACKEND_URL() { return Config::getURLs()['backend']; }
 }
 ?>
 

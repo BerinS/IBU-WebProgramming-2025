@@ -53,7 +53,7 @@ if (typeof window.Constants === 'undefined') {
                 // Local development
                 configUrl = 'http://localhost/IBU-WebProgramming-2025/backend/config';
             } else {
-                // Production (DigitalOcean or other hosting)
+                // Production
                 configUrl = `${currentProtocol}//${window.location.host}/backend/config`;
             }
             
