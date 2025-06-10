@@ -54,7 +54,14 @@ var ProductService = window.ProductService || {
         } else if (currentHash === '#shop') {
             this.loadShopPage();
         } else if (currentHash === '#page1' || currentHash === '') {
-            this.loadFrontPage();
+            // Wait for page to be fully loaded before making API calls on front page
+            if (document.readyState === 'complete') {
+                this.loadFrontPage();
+            } else {
+                window.addEventListener('load', function() {
+                    ProductService.loadFrontPage();
+                });
+            }
         } else if (currentHash.startsWith('#product')) {
             this.loadProductPage();
         }
@@ -607,10 +614,7 @@ var ProductService = window.ProductService || {
     },
 
     // FRONT PAGE FUNCTIONALITY
-    loadFeaturedProducts: function(retryCount = 0) {
-        const maxRetries = 3;
-        const retryDelay = 1000; // 1 second between retries
-        
+    loadFeaturedProducts: function() {
         this.publicApiCall('products', 
             function(response) {
                 const products = ProductService.extractProductsFromResponse(response);
@@ -620,17 +624,8 @@ var ProductService = window.ProductService || {
                 // Silently fail for featured products - front page should still work
             },
             function(error) {
-                console.error(`Error loading featured products (attempt ${retryCount + 1}):`, error);
-                
-                // If this is a status 0 error (CORS/browser blocking) and we haven't exceeded max retries
-                if (error.status === 0 && retryCount < maxRetries) {
-                    console.log(`Retrying featured products request in ${retryDelay}ms...`);
-                    setTimeout(function() {
-                        ProductService.loadFeaturedProducts(retryCount + 1);
-                    }, retryDelay * (retryCount + 1)); // Exponential backoff
-                } else {
-                    console.log('Max retries reached or non-recoverable error, giving up on featured products');
-                }
+                console.error('Error loading featured products:', error);
+                // Silently fail for featured products - front page should still work
             }
         );
     },
