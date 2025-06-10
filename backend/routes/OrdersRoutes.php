@@ -19,9 +19,9 @@ Flight::group('/orders', function() {
      * @OA\Get(
      *     path="/orders",
      *     summary="Get all orders (Admin/Employee only)",
-     *     description="Retrieve all orders - requires admin or employee privileges",
-     *     tags={"orders"},
-     *     security={{"BearerAuth": {}}},
+      *     description="Retrieve all orders - requires admin or employee privileges",
+ *     tags={"orders"},
+ *     security={{"bearerAuth": {}}},
      *     @OA\Response(
      *         response=200,
      *         description="List of all orders",
@@ -47,9 +47,9 @@ Flight::group('/orders', function() {
      * @OA\Get(
      *     path="/orders/user/{user_id}",
      *     summary="Get user's orders",
-     *     description="Retrieve orders for a specific user",
-     *     tags={"orders"},
-     *     security={{"BearerAuth": {}}},
+      *     description="Retrieve orders for a specific user",
+ *     tags={"orders"},
+ *     security={{"bearerAuth": {}}},
      *     @OA\Parameter(
      *         name="user_id",
      *         in="path",
@@ -86,9 +86,9 @@ Flight::group('/orders', function() {
      * @OA\Post(
      *     path="/orders",
      *     summary="Create a new order",
-     *     description="Create a new order from cart items",
-     *     tags={"orders"},
-     *     security={{"BearerAuth": {}}},
+      *     description="Create a new order from cart items",
+ *     tags={"orders"},
+ *     security={{"bearerAuth": {}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -123,9 +123,9 @@ Flight::group('/orders', function() {
      * @OA\Put(
      *     path="/orders/{id}/status",
      *     summary="Update order status (Admin/Employee only)",
-     *     description="Update the status of an order - requires admin or employee privileges",
-     *     tags={"orders"},
-     *     security={{"BearerAuth": {}}},
+      *     description="Update the status of an order - requires admin or employee privileges",
+ *     tags={"orders"},
+ *     security={{"bearerAuth": {}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -169,9 +169,9 @@ Flight::group('/orders', function() {
      * @OA\Delete(
      *     path="/orders/{id}",
      *     summary="Delete order (Admin only)",
-     *     description="Delete an order - requires admin privileges",
-     *     tags={"orders"},
-     *     security={{"BearerAuth": {}}},
+      *     description="Delete an order - requires admin privileges",
+ *     tags={"orders"},
+ *     security={{"bearerAuth": {}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",

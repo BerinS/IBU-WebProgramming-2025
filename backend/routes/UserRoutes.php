@@ -6,9 +6,9 @@ Flight::group('/user', function() {
      * @OA\Get(
      *     path="/user/profile",
      *     summary="Get user profile information",
-     *     description="Retrieve the profile information of the currently logged-in user",
-     *     tags={"user"},
-     *     security={{"BearerAuth": {}}},
+      *     description="Retrieve the profile information of the currently logged-in user",
+ *     tags={"user"},
+ *     security={{"bearerAuth": {}}},
      *     @OA\Response(
      *         response=200,
      *         description="User profile data",
@@ -41,9 +41,9 @@ Flight::group('/user', function() {
      * @OA\Get(
      *     path="/user/all",
      *     summary="Get all users (Admin only)",
-     *     description="Retrieve all users information - requires admin privileges",
-     *     tags={"user"},
-     *     security={{"BearerAuth": {}}},
+      *     description="Retrieve all users information - requires admin privileges",
+ *     tags={"user"},
+ *     security={{"bearerAuth": {}}},
      *     @OA\Response(
      *         response=200,
      *         description="List of all users",
@@ -77,9 +77,9 @@ Flight::group('/user', function() {
      * @OA\Put(
      *     path="/user/profile",
      *     summary="Update user profile",
-     *     description="Update the profile information of the currently logged-in user",
-     *     tags={"user"},
-     *     security={{"BearerAuth": {}}},
+      *     description="Update the profile information of the currently logged-in user",
+ *     tags={"user"},
+ *     security={{"bearerAuth": {}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -111,9 +111,9 @@ Flight::group('/user', function() {
      * @OA\Delete(
      *     path="/user/profile",
      *     summary="Delete user account",
-     *     description="Delete the current user's account",
-     *     tags={"user"},
-     *     security={{"BearerAuth": {}}},
+      *     description="Delete the current user's account",
+ *     tags={"user"},
+ *     security={{"bearerAuth": {}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -143,9 +143,9 @@ Flight::group('/user', function() {
      * @OA\Put(
      *     path="/user/{id}/role",
      *     summary="Update user role (Admin only)",
-     *     description="Update a user's role - requires admin privileges",
-     *     tags={"user"},
-     *     security={{"BearerAuth": {}}},
+      *     description="Update a user's role - requires admin privileges",
+ *     tags={"user"},
+ *     security={{"bearerAuth": {}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",

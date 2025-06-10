@@ -61,8 +61,8 @@
  *              type="array",
  *              @OA\Items(
  *                  @OA\Property(property="id", type="integer", example=1),
- *                  @OA\Property(property="name", type="string", example="Smart Watch Pro"),
- *                  @OA\Property(property="description", type="string", example="Premium smart watch with health tracking"),
+ *                  @OA\Property(property="name", type="string", example="Tissot Gentleman"),
+ *                  @OA\Property(property="description", type="string", example="Premium watch"),
  *                  @OA\Property(property="price", type="number", format="float", example=299.99),
  *                  @OA\Property(property="category_id", type="integer", example=1),
  *                  @OA\Property(property="brand", type="string", example="TechBrand"),
