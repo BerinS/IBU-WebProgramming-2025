@@ -41,23 +41,19 @@ class JWTConfig {
     
     public static function DB_PASSWORD()
     {
-        // For production, this should come from environment variables
         if (Environment::isProduction()) {
             return $_ENV['DB_PASSWORD'] ?? getenv('DB_PASSWORD') ?: '';
         }
-        // Keep existing password for local development
         return $_ENV['DB_PASSWORD'] ?? getenv('DB_PASSWORD') ?: 'Berin1235';
     }
     
     public static function DB_HOST()
     {
-        // For production, typically 'localhost' or specific DB host
-        // For local development, keep existing 'localhost'
         return $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: 'localhost';
     }
  
     public static function JWT_SECRET() {
-        // Use environment variable for production, fallback for local
+        // environment variable for production, fallback for local
         return $_ENV['JWT_SECRET'] ?? getenv('JWT_SECRET') ?: 'secret_key';
     }
     
@@ -65,7 +61,6 @@ class JWTConfig {
         if (Environment::isLocal()) {
             return 'http://localhost/IBU-WebProgramming-2025';
         }
-        // For production, this will be your Digital Ocean domain
         return $_ENV['FRONTEND_URL'] ?? getenv('FRONTEND_URL') ?: 'https://watchland-kg5xq.ondigitalocean.app';
     }
     
@@ -73,7 +68,6 @@ class JWTConfig {
         if (Environment::isLocal()) {
             return 'http://localhost/IBU-WebProgramming-2025/backend';
         }
-        // For production, this will be your Digital Ocean domain + backend path
         return $_ENV['BACKEND_URL'] ?? getenv('BACKEND_URL') ?: 'https://watchland-kg5xq.ondigitalocean.app/backend';
     }
 }
