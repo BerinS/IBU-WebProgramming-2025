@@ -62,43 +62,13 @@
 
 })();
 
-// Function to force close mobile menu using multiple methods
-function forceCloseMobileMenu() {
-    // Method 1: Using jQuery collapse
-    $('.navbar-collapse').collapse('hide');
-    
-    // Method 2: Direct class manipulation
-    $('.navbar-collapse').removeClass('show');
-    
-    // Method 3: Toggle button state
-    $('.navbar-toggler').addClass('collapsed').attr('aria-expanded', 'false');
-    
-    // Method 4: Force body classes
-    $('body').removeClass('modal-open');
-    
-    // Method 5: Trigger click on toggler if menu is open
-    if ($('.navbar-collapse').hasClass('show')) {
-        $('.navbar-toggler').trigger('click');
-    }
-}
-
-// Close menu on any click outside
-$(document).on('click', function(event) {
-    if (!$(event.target).closest('.navbar').length) {
-        forceCloseMobileMenu();
-    }
-});
-
-// Close menu on navigation
+// Simple close menu on navigation
 $(document).ready(function() {
     // Close on nav link click
-    $('.nav-link').on('click', function(e) {
-        // Don't prevent default - let the natural hash navigation occur
-        forceCloseMobileMenu();
-});
-
-    // Just close menu on init
-    forceCloseMobileMenu();
+    $('.nav-link').on('click', function() {
+        // Let Bootstrap handle the collapse
+        $('.navbar-collapse').collapse('hide');
+    });
 });
 
 //SPAPP code
@@ -110,8 +80,6 @@ var app = $.spapp({
 
 // Additional SPAPP handlers
 $(document).on('spapp.view.before', function(e, view) {
-    forceCloseMobileMenu();
-    
     // Check access to dashboard
     if (view === '#dashboard') {
         const user = Utils.getCurrentUser();
@@ -125,7 +93,8 @@ $(document).on('spapp.view.before', function(e, view) {
 });
 
 $(document).on('spapp.view.after', function() {
-    forceCloseMobileMenu();
+    // Close menu on navigation
+    $('.navbar-collapse').collapse('hide');
 });
 
 // Hide/show dashboard link based on user role
